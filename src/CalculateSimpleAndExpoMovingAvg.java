@@ -10,8 +10,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 
 	public static void main(String[] args) {
 		Date dte = new Date();
-		
-
 		System.out.println("Start at -> " + dte.toString());
 		CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
 		obj.MovingAverageCalculation();
