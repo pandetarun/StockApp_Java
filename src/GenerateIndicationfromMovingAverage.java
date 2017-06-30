@@ -2,12 +2,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 public class GenerateIndicationfromMovingAverage {
 	Connection connection = null;
 	public static int daysToCheck = 3;
+	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
+	SMAIndicatorDetails objSMAIndicatorDetails;
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -20,10 +25,16 @@ public class GenerateIndicationfromMovingAverage {
 		ArrayList<String> stocklist = null;
 		
 		stocklist = getStockListFromDB();
+		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		for (String stock: stocklist) {
+			objSMAIndicatorDetails = new SMAIndicatorDetails();
+			objSMAIndicatorDetails.stockCode = stock;			
 			CalculateIndicationfromSMA(stock);
-			
+			if(objSMAIndicatorDetails.signalPriceToSMA!=null || objSMAIndicatorDetails.signalSMAToSMA!=null) {
+				SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
+			}			
 		}
+		Collections.sort(SMAIndicatorDetailsList);
 	}
 	
 	private ArrayList<String> getStockListFromDB() {
@@ -150,10 +161,15 @@ public class GenerateIndicationfromMovingAverage {
 					"SYSDBA", "Jan@2017");
 			statement = connection.createStatement();
 
-			resultSet = statement.executeQuery("SELECT first 20 closeprice FROM DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;");
+			resultSet = statement.executeQuery("SELECT first 20 closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;");
+			objSMAIndicatorDetails.signalDate = null;
+			DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy"); 
 			while (resultSet.next()) {
 				price = resultSet.getString(1);
 				priceData.add(Float.parseFloat(price));
+				if(objSMAIndicatorDetails.signalDate == null) {
+					objSMAIndicatorDetails.signalDate = new Date(dateFormat.format(resultSet.getString(2)));
+				}
 				// System.out.println("StockNme - " + stockNSECode);
 			}
 			resultSet.close();
@@ -174,6 +190,8 @@ public class GenerateIndicationfromMovingAverage {
 		float lastdayPrice = 0;
 		float perentagePriceChange = 0;
 		
+		
+		
 		lastdayPrice = stockPriceValues.get(0);
 		for(int counter =0; counter<middleSMAPeriodValues.size(); counter++) {
 			
@@ -190,9 +208,10 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			if(positiveCounter >= daysToCheck) {
 				//Generate buy indicator
-				
+				objSMAIndicatorDetails.signalPriceToSMA = "buy";
 				//percentage Price change will help in ranking the selected stock. More the % change more higher the ranking
 				perentagePriceChange = (lastdayPrice - stockPriceValues.get(counter)) / lastdayPrice;
+				objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
 				break;
 			}
 			nextDayPrice = stockPriceValues.get(counter);
@@ -214,9 +233,10 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			if(positiveCounter >= daysToCheck) {
 				//Generate put indicator
-				
+				objSMAIndicatorDetails.signalPriceToSMA="put";
 				//percentage Price change will help in ranking the selected stock. More the % change more higher the ranking
 				perentagePriceChange = (lastdayPrice - stockPriceValues.get(counter)) / lastdayPrice;
+				objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
 				break;
 			}
 			nextDayPrice = stockPriceValues.get(counter);
@@ -243,6 +263,7 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			if(positiveCounter >= daysToCheck) {
 				//Generate buy indicator
+				objSMAIndicatorDetails.signalSMAToSMA="buy";
 				break;
 			}
 			nextDayLowerSMA = lowerSMAPeriodValues.get(counter);
@@ -264,6 +285,7 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			if(positiveCounter >= daysToCheck) {
 				//Generate put indicator
+				objSMAIndicatorDetails.signalSMAToSMA = "put";
 				break;
 			}
 		}
