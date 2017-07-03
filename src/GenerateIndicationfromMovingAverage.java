@@ -2,15 +2,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
 public class GenerateIndicationfromMovingAverage {
 	Connection connection = null;
-	public static int daysToCheck = 3;
+	public static int daysToCheck = 5;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 	SMAIndicatorDetails objSMAIndicatorDetails;
 	
@@ -26,15 +25,23 @@ public class GenerateIndicationfromMovingAverage {
 		
 		stocklist = getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
+		int stockcounter =1;
 		for (String stock: stocklist) {
+			System.out.println("For Stock -> " + stock + " Stock count -> "+ stockcounter++);
 			objSMAIndicatorDetails = new SMAIndicatorDetails();
 			objSMAIndicatorDetails.stockCode = stock;			
 			CalculateIndicationfromSMA(stock);
 			if(objSMAIndicatorDetails.signalPriceToSMA!=null || objSMAIndicatorDetails.signalSMAToSMA!=null) {
+				System.out.println("Stock Added for indication -> " + stock);
 				SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
-			}			
+			}
+			if(stockcounter>500) {
+				break;
+			}
 		}
-		Collections.sort(SMAIndicatorDetailsList);
+		//Collections.sort(SMAIndicatorDetailsList);
+		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
+		System.out.println("End");
 	}
 	
 	private ArrayList<String> getStockListFromDB() {
@@ -76,14 +83,19 @@ public class GenerateIndicationfromMovingAverage {
 		ArrayList<Float> stockPriceValues = null;
 		
 		prefPeriod = GetPreferredSMA(stockCode);
-		
-		lowerSMAPeriodValues = GetSMAData(stockCode,prefPeriod.get(0));
-		middleSMAPeriodValues = GetSMAData(stockCode,prefPeriod.get(1));
-		higherSMAPeriodValues = GetSMAData(stockCode,prefPeriod.get(2));
-		stockPriceValues = GetStockPrices(stockCode);
-		
-		calculateIndicationFromMiddleSMAAndPrice(middleSMAPeriodValues, stockPriceValues);
-		calculateIndicationFromLowerSMAAndHigherSMA(lowerSMAPeriodValues, higherSMAPeriodValues);
+		if(prefPeriod!=null && prefPeriod.size()>0) {
+			lowerSMAPeriodValues = GetSMAData(stockCode,prefPeriod.get(0));
+			middleSMAPeriodValues = GetSMAData(stockCode,prefPeriod.get(1));
+			higherSMAPeriodValues = GetSMAData(stockCode,prefPeriod.get(2));
+			stockPriceValues = GetStockPrices(stockCode);
+			
+			if(middleSMAPeriodValues.size() > 0 && stockPriceValues.size() > 0){
+				calculateIndicationFromMiddleSMAAndPrice(middleSMAPeriodValues, stockPriceValues);
+			}
+			if(lowerSMAPeriodValues.size() > 0 && higherSMAPeriodValues.size() > 0) {
+				calculateIndicationFromLowerSMAAndHigherSMA(lowerSMAPeriodValues, higherSMAPeriodValues);
+			}		
+		}
 	}
 	
 	private ArrayList<Integer> GetPreferredSMA(String stockCode) {
@@ -99,7 +111,7 @@ public class GenerateIndicationfromMovingAverage {
 					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
 					"SYSDBA", "Jan@2017");
 			statement = connection.createStatement();
-			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS;");
+			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
 			while (resultSet.next()) {
 				prefPeriodsInDB = resultSet.getString(1).split(",");
 				for(int counter = 0; counter < prefPeriodsInDB.length; counter++) {
@@ -163,15 +175,15 @@ public class GenerateIndicationfromMovingAverage {
 
 			resultSet = statement.executeQuery("SELECT first 20 closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;");
 			objSMAIndicatorDetails.signalDate = null;
-			DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy"); 
+			//DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy"); 
 			while (resultSet.next()) {
 				price = resultSet.getString(1);
 				priceData.add(Float.parseFloat(price));
 				if(objSMAIndicatorDetails.signalDate == null) {
-					objSMAIndicatorDetails.signalDate = new Date(dateFormat.format(resultSet.getString(2)));
-				}
+					objSMAIndicatorDetails.signalDate =  LocalDate.parse(resultSet.getString(2)); //new Date(dateFormat.format(resultSet.getString(2)));
+				} 
 				// System.out.println("StockNme - " + stockNSECode);
-			}
+			} 
 			resultSet.close();
 			connection.close();
 			connection = null;			
@@ -195,51 +207,59 @@ public class GenerateIndicationfromMovingAverage {
 		lastdayPrice = stockPriceValues.get(0);
 		for(int counter =0; counter<middleSMAPeriodValues.size(); counter++) {
 			
-			priceToSMADifference = stockPriceValues.get(counter)-middleSMAPeriodValues.get(counter);
-			if(nextDayPrice==0){
-				twoDaysPriceDifference = 0;
-			} else {
-				twoDaysPriceDifference = nextDayPrice - stockPriceValues.get(counter);
-			}
-			if(priceToSMADifference>0 && twoDaysPriceDifference>=0) {
-				positiveCounter++;
+			if(middleSMAPeriodValues.size()> counter && stockPriceValues.size() > counter){
+				priceToSMADifference = stockPriceValues.get(counter)-middleSMAPeriodValues.get(counter);
+				if(nextDayPrice==0){
+					twoDaysPriceDifference = 0;
+				} else {
+					twoDaysPriceDifference = nextDayPrice - stockPriceValues.get(counter);
+				}
+				if(priceToSMADifference>0 && twoDaysPriceDifference>=0) {
+					positiveCounter++;
+				} else {
+					break;
+				}
+				if(positiveCounter >= daysToCheck) {
+					//Generate buy indicator
+					objSMAIndicatorDetails.signalPriceToSMA = "buy";
+					//percentage Price change will help in ranking the selected stock. More the % change more higher the ranking
+					perentagePriceChange = (lastdayPrice - stockPriceValues.get(counter)) / lastdayPrice;
+					objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
+					break;
+				}
+				nextDayPrice = stockPriceValues.get(counter);
 			} else {
 				break;
-			}
-			if(positiveCounter >= daysToCheck) {
-				//Generate buy indicator
-				objSMAIndicatorDetails.signalPriceToSMA = "buy";
-				//percentage Price change will help in ranking the selected stock. More the % change more higher the ranking
-				perentagePriceChange = (lastdayPrice - stockPriceValues.get(counter)) / lastdayPrice;
-				objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
-				break;
-			}
-			nextDayPrice = stockPriceValues.get(counter);
+			}			
 		}
 		
 		positiveCounter = 0;
 		nextDayPrice = 0;
 		for(int counter =0; counter<middleSMAPeriodValues.size(); counter++) {
-			priceToSMADifference = stockPriceValues.get(counter)-middleSMAPeriodValues.get(counter);
-			if(nextDayPrice==0){
-				twoDaysPriceDifference = 0;
-			} else {
-				twoDaysPriceDifference = nextDayPrice - stockPriceValues.get(counter);
-			}
-			if(priceToSMADifference<0 && twoDaysPriceDifference<=0) {
-				positiveCounter++;
+			if(middleSMAPeriodValues.size()> counter && stockPriceValues.size() > counter){
+				priceToSMADifference = stockPriceValues.get(counter)-middleSMAPeriodValues.get(counter);
+				if(nextDayPrice==0){
+					twoDaysPriceDifference = 0;
+				} else {
+					twoDaysPriceDifference = nextDayPrice - stockPriceValues.get(counter);
+				}
+				if(priceToSMADifference<0 && twoDaysPriceDifference<=0) {
+					positiveCounter++;
+				} else {
+					break;
+				}
+				if(positiveCounter >= daysToCheck) {
+					//Generate put indicator
+					objSMAIndicatorDetails.signalPriceToSMA="put";
+					//percentage Price change will help in ranking the selected stock. More the % change more higher the ranking
+					perentagePriceChange = (lastdayPrice - stockPriceValues.get(counter)) / lastdayPrice;
+					objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
+					break;
+				}
+				nextDayPrice = stockPriceValues.get(counter);
 			} else {
 				break;
-			}
-			if(positiveCounter >= daysToCheck) {
-				//Generate put indicator
-				objSMAIndicatorDetails.signalPriceToSMA="put";
-				//percentage Price change will help in ranking the selected stock. More the % change more higher the ranking
-				perentagePriceChange = (lastdayPrice - stockPriceValues.get(counter)) / lastdayPrice;
-				objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
-				break;
-			}
-			nextDayPrice = stockPriceValues.get(counter);
+			}			
 		}		
 	}
 
@@ -250,44 +270,53 @@ public class GenerateIndicationfromMovingAverage {
 		float twoDaysLowerSMADIfference = 0;
 		
 		for(int counter =0; counter<lowerSMAPeriodValues.size(); counter++) {
-			differenceInSMA = lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter);
-			if(nextDayLowerSMA==0){
-				twoDaysLowerSMADIfference = 0;
-			} else {
-				twoDaysLowerSMADIfference = nextDayLowerSMA - lowerSMAPeriodValues.get(counter);
-			}
-			if (differenceInSMA > 0 && twoDaysLowerSMADIfference >= 0) {				
-				positiveCounter++;
+			if(lowerSMAPeriodValues.size() > counter && higherSMAPeriodValues.size() > counter){
+				differenceInSMA = lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter);
+				if(nextDayLowerSMA==0){
+					twoDaysLowerSMADIfference = 0;
+				} else {
+					twoDaysLowerSMADIfference = nextDayLowerSMA - lowerSMAPeriodValues.get(counter);
+				}
+				if (differenceInSMA > 0 && twoDaysLowerSMADIfference >= 0) {				
+					positiveCounter++;
+				} else {
+					break;
+				}
+				if(positiveCounter >= daysToCheck) {
+					//Generate buy indicator
+					objSMAIndicatorDetails.signalSMAToSMA="buy";
+					break;
+				}
+				nextDayLowerSMA = lowerSMAPeriodValues.get(counter);
 			} else {
 				break;
-			}
-			if(positiveCounter >= daysToCheck) {
-				//Generate buy indicator
-				objSMAIndicatorDetails.signalSMAToSMA="buy";
-				break;
-			}
-			nextDayLowerSMA = lowerSMAPeriodValues.get(counter);
+			}			
 		}
 		
 		positiveCounter = 0;
 		nextDayLowerSMA = 0;
 		for(int counter =0; counter<lowerSMAPeriodValues.size(); counter++) {
-			differenceInSMA = lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter);
-			if(nextDayLowerSMA==0){
-				twoDaysLowerSMADIfference = 0;
-			} else {
-				twoDaysLowerSMADIfference = nextDayLowerSMA - lowerSMAPeriodValues.get(counter);
-			}
-			if (differenceInSMA < 0 && twoDaysLowerSMADIfference <= 0) {
-				positiveCounter++;
+			if(lowerSMAPeriodValues.size() > counter && higherSMAPeriodValues.size() > counter){
+				differenceInSMA = lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter);
+				if(nextDayLowerSMA==0){
+					twoDaysLowerSMADIfference = 0;
+				} else {
+					twoDaysLowerSMADIfference = nextDayLowerSMA - lowerSMAPeriodValues.get(counter);
+				}
+				if (differenceInSMA < 0 && twoDaysLowerSMADIfference <= 0) {
+					positiveCounter++;
+				} else {
+					break;
+				}
+				if(positiveCounter >= daysToCheck) {
+					//Generate put indicator
+					objSMAIndicatorDetails.signalSMAToSMA = "put";
+					break;
+				}
+				nextDayLowerSMA = lowerSMAPeriodValues.get(counter);
 			} else {
 				break;
-			}
-			if(positiveCounter >= daysToCheck) {
-				//Generate put indicator
-				objSMAIndicatorDetails.signalSMAToSMA = "put";
-				break;
-			}
+			}				
 		}
 		
 	}
