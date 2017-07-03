@@ -17,6 +17,7 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.log4j.Logger;
 import org.jsoup.parser.Parser;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -28,10 +29,11 @@ public class CollectDailyStockData extends SetupBase {
 	ArrayList<String> storedStockNSECode;
 	QuotesData quotesDataObj;
 	Connection connection = null;
+	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
-		System.out.println("Start at -> " + dte.toString());
+		logger.debug("CollectDailyStockData Started");
 		CollectDailyStockData obj = new CollectDailyStockData();
 		
 		obj.startCollectingDailyData();
@@ -44,6 +46,7 @@ public class CollectDailyStockData extends SetupBase {
 		String[] stockData = null;
 		File inputFileForDeletion = null;
 		try{
+			logger.debug("startCollectingDailyData Started");
 			setupSelenium(URL);
 			getDailyDataFile();
 			stopSelenium();
@@ -88,22 +91,24 @@ public class CollectDailyStockData extends SetupBase {
 				    }
 				    zipFile.close();
 				    Files.move(Paths.get(inputFile.getAbsolutePath()), Paths.get("C:/Selenium/downlodProcessed/" + inputFile.getName()));
-				    			    
+				    logger.debug("startCollectingDailyData End");			    
 				}
 			}			
 		} catch (Exception ex) {
 			System.out.println("Error in reading zip fil "+ex);
+			logger.error("Error in startCollectingDailyData - > "+ex);
 			inputFileForDeletion.delete();	
 		}	
 	}
 	
 	private void getDailyDataFile () {		
+		logger.debug("getDailyDataFile Started");
 		WebElement ele = null;		
 		ele = driver.findElement(By.id("h_filetype"));
 		Select select= new Select(ele);				
 		select.selectByVisibleText("Bhavcopy");
 		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy"); 
-		//Date date = new Date(System.currentTimeMillis()-30*60*60*1000);
+		//Date date = new Date(System.currentTimeMillis()-72*60*60*1000);
 		Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 		ele = driver.findElement(By.id("date"));
 		ele.clear();
@@ -119,12 +124,13 @@ public class CollectDailyStockData extends SetupBase {
 		ele.click();
 		waitForPageLoad(3000);
 		ele = driver.findElement(By.xpath("//*[@id='spanDisplayBox']/table/tbody/tr/td/a"));
-		ele.click();		
+		ele.click();			
 		try {
 			Thread.sleep(5000);
 		} catch(Exception ex) {
 			System.out.println("Error in waiting for drop down suggestion");
 		}
+		logger.debug("getDailyDataFile End");
 	}
 	
 	private boolean getStoredStockNSECode() {
@@ -147,6 +153,7 @@ public class CollectDailyStockData extends SetupBase {
         	return true;
         } catch(Exception ex){
         	System.out.println("Error in DB action"+ex);
+        	logger.error("Error in getStoredStockNSECode -> ", ex);
         	return false;
         }
 	}
@@ -162,6 +169,7 @@ public class CollectDailyStockData extends SetupBase {
         	statement.executeUpdate(tmpsql);
         } catch(Exception ex){
         	System.out.println("storeQuotestoDB for quote -> " + quotesDataObj.stockName + " and Date - > " + quotesDataObj.quoteDate + " Error in DB action"+ex);
+        	logger.error("Error in storeQuotestoDB -> ", ex);
         }
 	}
 }
