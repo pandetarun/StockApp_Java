@@ -5,16 +5,20 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 public class CalculateSimpleAndExpoMovingAvg {
 	Connection connection = null;
-
+	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
 	public static void main(String[] args) {
 		Date dte = new Date();
+		logger.debug("CalculateSimpleAndExpoMovingAvg Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
 		obj.MovingAverageCalculation();
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
+		logger.debug("CalculateSimpleAndExpoMovingAvg End");
 	}
 	
 	public void MovingAverageCalculation(){
@@ -23,7 +27,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 
 		for (String stockCode : stockList) {
 			//calculate average on bulk
-			//obj.calculateSimpleMovingAverage(stockCode);
+			//calculateSimpleMovingAverage(stockCode);
 			//calculate average on daily basis
 			calculateSimpleMovingAverageDaily(stockCode);
 		}
@@ -56,6 +60,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			return stockList;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
+			logger.error("Error in getStockListFromDB  -> ", ex);
 			return null;
 		}
 	}
@@ -154,6 +159,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			return smaDataObj;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
+			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			return null;
 		}
 	}
@@ -190,6 +196,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			return smaDataObj;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
+			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
 		}
 	}
@@ -207,6 +214,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 		} catch (Exception ex) {
 			System.out.println("storeMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
+			logger.error("Error in storeMovingAverageinDB  ->  storeMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
+					+ " and period  - > " + period, ex);
 		}
 	}
 
@@ -242,6 +251,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			return eMA;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
+			logger.error("Error in getExpMovingAverageFromDB", ex);
 			return eMA;
 		}
 	}
