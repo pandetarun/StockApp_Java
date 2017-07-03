@@ -1,16 +1,18 @@
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.File;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
-public class QuoteApplication extends SetupBase {
+public class QuoteApplication {
 	final String URL = "https://www.nseindia.com/products/content/equities/equities/archieve_eq.htm";
 	final String timeOut = "2000";
-
+	static Logger logger = Logger.getLogger(QuoteApplication.class);
 	public static void main(String[] args) {
+		String log4jConfigFile = System.getProperty("user.dir")
+				+ File.separator + "log4j.properties";
+		PropertyConfigurator.configure(log4jConfigFile);
+
+		logger.debug("Java Program Called");
 		if (args.length > 0) {
 			if (args[0].equalsIgnoreCase("quote")) {
 				CollectDailyStockData obj = new CollectDailyStockData();
@@ -25,6 +27,6 @@ public class QuoteApplication extends SetupBase {
 		} else {
 			System.out.println("No Args specified");
 		}
-
+		logger.debug("Java Program Called");
 	}
 }
