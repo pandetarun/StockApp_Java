@@ -4,8 +4,11 @@ public class SMAIndicatorDetails {// implements Comparable<SMAIndicatorDetails> 
 	String stockCode;
 	float percentagePriceChange;
 	String signalPriceToSMA; //"put" for options in case stock dropping down. "buy" in case price going up and crossed middleperiodSMA
+	float priceToSMApercentageDeviation;
 	String signalSMAToSMA; //"put" for options in case stock dropping down. "buy" in case lower SMA going up and crossed higherperiodSMA
+	float SMAToSMApercentageDeviation;
 	LocalDate signalDate;
+	
 	
 	/*public int compareTo(SMAIndicatorDetails other)
 	  {
