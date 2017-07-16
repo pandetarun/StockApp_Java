@@ -35,7 +35,7 @@ public class GenerateIndicationfromMovingAverage {
 				System.out.println("*****************************Stock Added for indication -> " + stock);
 				SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
 			}
-			if (stockcounter > 20) {
+			if (stockcounter > 500) {
 				break;
 			}
 		}
@@ -88,10 +88,10 @@ public class GenerateIndicationfromMovingAverage {
 			stockPriceValues = GetStockPrices(stockCode);
 
 			if (middleSMAPeriodValues.size() > 0 && stockPriceValues.size() > 0) {
-				calculateIndicationFromMiddleSMAAndPrice(middleSMAPeriodValues, stockPriceValues);
+				calculateIndicationFromMiddleSMAAndPriceV1(middleSMAPeriodValues, stockPriceValues);
 			}
 			if (lowerSMAPeriodValues.size() > 0 && higherSMAPeriodValues.size() > 0) {
-				calculateIndicationFromLowerSMAAndHigherSMA(lowerSMAPeriodValues, higherSMAPeriodValues);
+				calculateIndicationFromLowerSMAAndHigherSMAV1(lowerSMAPeriodValues, higherSMAPeriodValues, stockPriceValues);
 			}
 		}
 	}
@@ -277,6 +277,75 @@ public class GenerateIndicationfromMovingAverage {
 		 */
 	}
 
+	private void calculateIndicationFromMiddleSMAAndPriceV1(ArrayList<Float> middleSMAPeriodValues, ArrayList<Float> stockPriceValues) {
+
+		float percentagePriceChange = 0;
+		float priceToSMAPercentageDeviation = 0;
+		float lowerLevelDifference = 0;
+		boolean continuousGrowth = true;
+		
+		// Logic to get buy condition
+		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
+			//last day price is less than price daytocheck before
+			if (stockPriceValues.get(0) < stockPriceValues.get(daysToCheck-1)) { 
+				return;
+			}
+			//price trending below middle SMA then stock is not good to buy
+			if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) < 0) { 
+				return;
+			}
+			//Last day price lower than previous day means down trend
+			if (stockPriceValues.get(0) < stockPriceValues.get(1)) { 
+				return;
+			}
+			for (int counter = 1 ; counter < daysToCheck ; counter++ ) {
+				if (stockPriceValues.get(counter-1) - middleSMAPeriodValues.get(counter-1) < stockPriceValues.get(counter) - middleSMAPeriodValues.get(counter)) {
+					continuousGrowth = false;
+				}
+				if (stockPriceValues.get(counter) - middleSMAPeriodValues.get(counter) < 0) { 
+					objSMAIndicatorDetails.PNSMAcrossover = true;
+				}
+			}
+			if(continuousGrowth) {
+				objSMAIndicatorDetails.PNSMcontinuousGrowth = true;
+			}
+			if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) > 0 && (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) > stockPriceValues.get(daysToCheck-1) - middleSMAPeriodValues.get(daysToCheck-1))) {
+				objSMAIndicatorDetails.signalPriceToSMA = "buy";
+				percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck-1)) / stockPriceValues.get(daysToCheck-1);
+				objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
+				if ((stockPriceValues.get(daysToCheck-1) - middleSMAPeriodValues.get(daysToCheck-1))<0) {
+					lowerLevelDifference = 1;
+				} else {
+					lowerLevelDifference = stockPriceValues.get(daysToCheck-1) - middleSMAPeriodValues.get(daysToCheck-1);
+				}
+				priceToSMAPercentageDeviation = ((stockPriceValues.get(0) - middleSMAPeriodValues.get(0)) - (stockPriceValues.get(daysToCheck-1) - middleSMAPeriodValues.get(daysToCheck-1))) / lowerLevelDifference;				
+				objSMAIndicatorDetails.priceToSMApercentageDeviation = priceToSMAPercentageDeviation;
+			} else {
+				objSMAIndicatorDetails.PNSMAcrossover = false;
+			}
+		}
+/*//Put condition later
+		// Logic to get put condition
+		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
+			if (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck) < 0) {
+				if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) < stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck)) {
+					if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) < 0) {
+						objSMAIndicatorDetails.signalPriceToSMA = "put";
+						percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck)) / stockPriceValues.get(daysToCheck);
+						if ((stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))<0) {
+							lowerLevelDifference = 1;
+						} else {
+							lowerLevelDifference = stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck);
+						}
+						priceToSMAPercentageDeviation = ((stockPriceValues.get(0) - middleSMAPeriodValues.get(0)) - (stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))) / lowerLevelDifference;
+						objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
+						objSMAIndicatorDetails.priceToSMApercentageDeviation = priceToSMAPercentageDeviation;
+					}
+				}
+			}
+		}*/
+	}
+	
 	private void calculateIndicationFromLowerSMAAndHigherSMA(ArrayList<Float> lowerSMAPeriodValues, ArrayList<Float> higherSMAPeriodValues) {
 //		int positiveCounter = 0;
 //		float differenceInSMA = 0;
@@ -373,5 +442,72 @@ public class GenerateIndicationfromMovingAverage {
 				break;
 			}
 		}*/
+	}
+	
+	private void calculateIndicationFromLowerSMAAndHigherSMAV1(ArrayList<Float> lowerSMAPeriodValues, ArrayList<Float> higherSMAPeriodValues, ArrayList<Float> stockPriceValues) {
+
+		float lowerLevelDifference = 0;
+		float SMAToSMAPercentageDeviation = 0;
+		boolean continuousGrowth = true;
+		
+		// Logic to get buy condition
+		if (lowerSMAPeriodValues.size() > daysToCheck && higherSMAPeriodValues.size() > daysToCheck && stockPriceValues.size() > daysToCheck) {
+			//price trending below middle SMA then stock is not good to buy
+			if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) < 0) { 
+				return;
+			}
+			//last day price is less than price daytocheck before
+			if (stockPriceValues.get(0) < stockPriceValues.get(daysToCheck-1)) { 
+				return;
+			}
+			//Last day price lower than previous day means down trend
+			if (stockPriceValues.get(0) < stockPriceValues.get(1)) { 
+				return;
+			}
+			for (int counter = 1 ; counter < daysToCheck ; counter++ ) {
+				if (lowerSMAPeriodValues.get(counter-1) - higherSMAPeriodValues.get(counter-1) < lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter)) {
+					continuousGrowth = false;
+				}
+				if (lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter) < 0) { 
+					objSMAIndicatorDetails.SMNSMcrossover = true;
+				}
+			}
+			if(continuousGrowth) {
+				objSMAIndicatorDetails.SMNSMcontinuousGrowth = true;
+			}
+			if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) > 0 && (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) > lowerSMAPeriodValues.get(daysToCheck-1) - higherSMAPeriodValues.get(daysToCheck-1))) {
+				objSMAIndicatorDetails.signalSMAToSMA = "buy";
+				if ((lowerSMAPeriodValues.get(daysToCheck-1) - higherSMAPeriodValues.get(daysToCheck-1))<0) {
+					lowerLevelDifference = 1;
+				} else {
+					lowerLevelDifference = lowerSMAPeriodValues.get(daysToCheck-1) - higherSMAPeriodValues.get(daysToCheck-1);
+				}
+				SMAToSMAPercentageDeviation = ((lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0)) - (lowerSMAPeriodValues.get(daysToCheck-1) - higherSMAPeriodValues.get(daysToCheck-1))) / lowerLevelDifference;
+				objSMAIndicatorDetails.SMAToSMApercentageDeviation = SMAToSMAPercentageDeviation;
+			} else {
+				objSMAIndicatorDetails.SMNSMcrossover = false;
+			}
+		}	
+/*//Put condition later
+		// Logic to get put condition
+		if (lowerSMAPeriodValues.size() > daysToCheck && higherSMAPeriodValues.size() > daysToCheck) {
+			if ((lowerSMAPeriodValues.get(0) - lowerSMAPeriodValues.get(daysToCheck) < 0) && (higherSMAPeriodValues.get(0) - higherSMAPeriodValues.get(daysToCheck) < 0)) {
+				if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) < lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck)) {
+					if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) < 0) {
+						objSMAIndicatorDetails.signalSMAToSMA = "put";
+						//percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck)) / stockPriceValues.get(daysToCheck);
+						if ((lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck))<0) {
+							lowerLevelDifference = 1;
+						} else {
+							lowerLevelDifference = lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck);
+						}
+						SMAToSMAPercentageDeviation = ((lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0)) - (lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck))) / lowerLevelDifference;
+						//objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
+						objSMAIndicatorDetails.SMAToSMApercentageDeviation = SMAToSMAPercentageDeviation;
+					}
+				}
+			}
+		}
+*/				
 	}
 }

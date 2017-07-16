@@ -108,7 +108,7 @@ public class CollectDailyStockData extends SetupBase {
 		Select select= new Select(ele);				
 		select.selectByVisibleText("Bhavcopy");
 		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy"); 
-		//Date date = new Date(System.currentTimeMillis()-72*60*60*1000);
+		//Date date = new Date(System.currentTimeMillis()-24*60*60*1000);
 		Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 		ele = driver.findElement(By.id("date"));
 		ele.clear();
@@ -122,11 +122,11 @@ public class CollectDailyStockData extends SetupBase {
 		}
 		ele = driver.findElement(By.xpath("//*[@id='wrapper_btm']/div[1]/div[4]/div/div[1]/div/div[4]/input[3]"));
 		ele.click();
-		waitForPageLoad(3000);
+		waitForPageLoad(5000);
 		ele = driver.findElement(By.xpath("//*[@id='spanDisplayBox']/table/tbody/tr/td/a"));
 		ele.click();			
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(7000);
 		} catch(Exception ex) {
 			System.out.println("Error in waiting for drop down suggestion");
 		}
