@@ -11,9 +11,9 @@ public class SMAIndicatorDetailsComparator implements Comparator<SMAIndicatorDet
 			return 1;
 		}
 		//Comaprison for first object SMAtoSMA not null and  Buy and second object SMAtoSMA not null and put
-		if(obj1.signalSMAToSMA!=null && obj1.signalSMAToSMA=="buy" && (obj2.signalSMAToSMA!=null || obj2.signalSMAToSMA.equalsIgnoreCase("put"))) {
+		if(obj1.signalSMAToSMA!=null && obj1.signalSMAToSMA=="buy" && (obj2.signalSMAToSMA!=null && obj2.signalSMAToSMA.equalsIgnoreCase("put"))) {
 			return -1;
-		} else if (obj2.signalSMAToSMA!=null && obj2.signalSMAToSMA=="buy" && (obj1.signalSMAToSMA!=null || obj1.signalSMAToSMA.equalsIgnoreCase("put"))) {
+		} else if (obj2.signalSMAToSMA!=null && obj2.signalSMAToSMA=="buy" && (obj1.signalSMAToSMA!=null && obj1.signalSMAToSMA.equalsIgnoreCase("put"))) {
 			return 1;
 		}
 		//Comaprison for first object SMAtoSMA not null and  Buy and second object SMAtoSMA not null and buy

@@ -35,12 +35,13 @@ public class GenerateIndicationfromMovingAverage {
 				System.out.println("*****************************Stock Added for indication -> " + stock);
 				SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
 			}
-			if (stockcounter > 500) {
+			/*if (stockcounter > 10) {
 				break;
-			}
+			}*/
 		}
 		// Collections.sort(SMAIndicatorDetailsList);
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
+		sendTopStockInMail(SMAIndicatorDetailsList);
 		System.out.println("End");
 	}
 
@@ -509,5 +510,31 @@ public class GenerateIndicationfromMovingAverage {
 			}
 		}
 */				
+	}
+	
+	private void sendTopStockInMail(ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList) {
+		StringBuilder mailBody = new StringBuilder();
+		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
+		mailBody.append("<th>signalSMAToSMA</th><th>SMNSMcrossover</th><th>SMNSMcontinuousGrowth</th><th>SMAToSMApercentageDeviation</th><th>signalPriceToSMA</th><th>PNSMAcrossover</th>"
+				+ "<th>PNSMcontinuousGrowth</th><th>priceToSMApercentageDeviation</th><th>percentagePriceChange</th></tr>");
+		
+		for (int counter = 0; counter <(SMAIndicatorDetailsList.size()>10?SMAIndicatorDetailsList.size():10); counter++) {
+			mailBody.append("<tr><td>" + (counter+1) + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).signalDate + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).stockCode + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).signalSMAToSMA + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).SMNSMcrossover + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).SMNSMcontinuousGrowth + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).SMAToSMApercentageDeviation + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).signalPriceToSMA + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).PNSMAcrossover + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).PNSMcontinuousGrowth + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).priceToSMApercentageDeviation + "</td>");
+			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).percentagePriceChange + "</td></tr>");
+		}
+		mailBody.append("</table></body></html>");
+		SendSuggestedStockInMail mailSender;
+        mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
+        //mailSender = new SendSuggestedStockInMail("tarun.pandey@accenture.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
 	}
 }
