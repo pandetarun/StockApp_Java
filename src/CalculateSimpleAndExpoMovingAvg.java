@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 public class CalculateSimpleAndExpoMovingAvg {
 	Connection connection = null;
-	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
+	static Logger logger = Logger.getLogger(CalculateSimpleAndExpoMovingAvg.class);
 	public static void main(String[] args) {
 		Date dte = new Date();
 		logger.debug("CalculateSimpleAndExpoMovingAvg Started");

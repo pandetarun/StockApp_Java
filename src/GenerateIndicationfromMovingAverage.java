@@ -512,13 +512,14 @@ public class GenerateIndicationfromMovingAverage {
 */				
 	}
 	
+	
 	private void sendTopStockInMail(ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList) {
 		StringBuilder mailBody = new StringBuilder();
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>signalSMAToSMA</th><th>SMNSMcrossover</th><th>SMNSMcontinuousGrowth</th><th>SMAToSMApercentageDeviation</th><th>signalPriceToSMA</th><th>PNSMAcrossover</th>"
 				+ "<th>PNSMcontinuousGrowth</th><th>priceToSMApercentageDeviation</th><th>percentagePriceChange</th></tr>");
 		
-		for (int counter = 0; counter <(SMAIndicatorDetailsList.size()>10?SMAIndicatorDetailsList.size():10); counter++) {
+		for (int counter = 0; counter <(SMAIndicatorDetailsList.size()>20?20:SMAIndicatorDetailsList.size()); counter++) {
 			mailBody.append("<tr><td>" + (counter+1) + "</td>");
 			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).signalDate + "</td>");
 			mailBody.append("<td>" + SMAIndicatorDetailsList.get(counter).stockCode + "</td>");
