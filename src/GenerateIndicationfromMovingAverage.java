@@ -286,6 +286,10 @@ public class GenerateIndicationfromMovingAverage {
 		boolean continuousGrowth = true;
 		
 		// Logic to get buy condition
+		if (stockPriceValues.get(0) < stockPriceValues.get(1)) { 
+			return;
+		}
+		
 		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
 			//last day price is less than price daytocheck before
 			if (stockPriceValues.get(0) < stockPriceValues.get(daysToCheck-1)) { 
