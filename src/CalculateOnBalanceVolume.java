@@ -25,11 +25,15 @@ public class CalculateOnBalanceVolume {
 	private void OnBalanceVolumeCalculation() {
 		ArrayList<String> stockList = null;
 		stockList = getStockListFromDB();
-
+		ArrayList<OnBalanceVolumeIndicator> onBalanceSelectedStockList = new ArrayList<OnBalanceVolumeIndicator>();
+		OnBalanceVolumeIndicator tmpOnBalanceVolumeIndicator;
 		for (String stockCode : stockList) {
 			//calculate average on bulk
 			//calculateOnBalanceVolume(stockCode);
-			calculateOnBalanceVolumeDaily(stockCode);
+			tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode);
+			if (tmpOnBalanceVolumeIndicator!=null) {
+				onBalanceSelectedStockList.add(tmpOnBalanceVolumeIndicator);
+			}
 			//calculate average on daily basis
 			//calculateSimpleMovingAverageDaily(stockCode);
 		}
@@ -60,18 +64,21 @@ public class CalculateOnBalanceVolume {
 		}
 	}
 	
-	private void calculateOnBalanceVolumeDaily(String stockCode) {
+	private OnBalanceVolumeIndicator calculateOnBalanceVolumeDaily(String stockCode) {
 		OnBalanceVolumeData stockDetails = null;
 		long onBalanceVolume = 0;
 		float lastDayClosingPrice = 0;
+		//long volumechangeinlasday;
+		boolean continuousVolumeIncrease = true;
+		
 		stockDetails = getStockDetailsFromDBDaily(stockCode);
+		ArrayList<Long> tmpOnBalanceVol = new ArrayList<Long>();
 		if (stockDetails == null || stockDetails.tradeddate == null) {
 			System.out.println("stock details null for - > "+stockCode);
 		}
-		for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
+		for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {			
 			if(counter == 0) {
-				onBalanceVolume = 0;
-				
+				onBalanceVolume = 0;				
 			} else {
 				if (stockDetails.closePrice.get(counter) > lastDayClosingPrice) {
 					onBalanceVolume = onBalanceVolume + stockDetails.volume.get(counter);
@@ -79,10 +86,28 @@ public class CalculateOnBalanceVolume {
 					onBalanceVolume = onBalanceVolume - stockDetails.volume.get(counter);
 				}
 			}
+			tmpOnBalanceVol.add(onBalanceVolume);
 			lastDayClosingPrice = stockDetails.closePrice.get(counter);
-			storeOnBalanceVolumeinDB(stockCode, stockDetails.tradeddate.get(counter), stockDetails.closePrice.get(counter),onBalanceVolume, stockDetails.volume.get(counter));
-			
+			//storeOnBalanceVolumeinDB(stockCode, stockDetails.tradeddate.get(counter), stockDetails.closePrice.get(counter),onBalanceVolume, stockDetails.volume.get(counter));			
 		}
+		//if last day volume is down then do not add stock to list
+		if(tmpOnBalanceVol.get(tmpOnBalanceVol.size()-1) < tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2)) {
+			return null;
+		}
+		OnBalanceVolumeIndicator tmpOnBalanceVolumeIndicator = new OnBalanceVolumeIndicator();
+		tmpOnBalanceVolumeIndicator.stockName = stockCode;
+		tmpOnBalanceVolumeIndicator.tradeddate = stockDetails.tradeddate.get(stockDetails.tradeddate.size()-1);
+		tmpOnBalanceVolumeIndicator.volumeChangeInLastDay = tmpOnBalanceVol.get(tmpOnBalanceVol.size()-1) - tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2);
+		tmpOnBalanceVolumeIndicator.continuousIncreasedVolume = continuousVolumeIncrease;
+		tmpOnBalanceVolumeIndicator.percentageChangeInLastDay = (tmpOnBalanceVol.get(tmpOnBalanceVol.size()-1) - tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2))/tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2);
+		
+		for (int counter = tmpOnBalanceVol.size()-2; counter > 0 ; counter--) {
+			if (tmpOnBalanceVol.get(counter) < tmpOnBalanceVol.get(counter-1)) {
+				continuousVolumeIncrease = false;
+				break;
+			}
+		}
+		return tmpOnBalanceVolumeIndicator;
 	}
 	
 	private SMAData getStockDetailsFromDB(String stockCode) {
@@ -163,7 +188,7 @@ public class CalculateOnBalanceVolume {
 			onBalanceVolumeDataObj.onBalanceVolume = new ArrayList<Long>();
 			statement = connection.createStatement();
 			onBalanceVolumeDataObj.stockName = stockCode;
-			resultSet = statement.executeQuery("Select ^ from (SELECT first 10 tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
+			resultSet = statement.executeQuery("Select * from (SELECT first 10 tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
 					+ stockCode + "' order by tradeddate desc ) order by TRADEDDATE;");
 			while (resultSet.next()) {
 				tradedDate = resultSet.getString(1);

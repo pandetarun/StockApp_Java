@@ -2,6 +2,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -16,9 +17,11 @@ public class SetupBase {
 	WebDriver driver = null;
 	final String timeOut = "2000";
 	String downloadFilepath = "c:\\Selenium\\download";
+	static Logger logger = Logger.getLogger(SetupBase.class);
 	
 	void setupSelenium(String URL) {
 		try {
+			logger.debug("Setup Selenium Started");
 			File file = new File("C:\\Selenium\\chromedriver.exe");
 			HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
 	       chromePrefs.put("profile.default_content_settings.popups", 0);
@@ -47,6 +50,7 @@ public class SetupBase {
 			driver.get(URL);
 
 		} catch (Exception ex) {
+			logger.error("Error occurred in setting up Selenium -> ", ex);
 			System.out.println("Error occurred in setting up Selenium -> " + ex.getMessage());
 		}
 	}
