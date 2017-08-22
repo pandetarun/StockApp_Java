@@ -37,13 +37,13 @@ public class UpdateIndicatedStocks {
 						//tmpStockExcelData.excelRow.get(existinigStockRow);
 						//tmpStockExcelData.repeatTime.add(existinigStockRow, tmpStockExcelData.repeatTime.get(existinigStockRow) + 1);
 						//put repeat counter in excel
-						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 4, tmpStockExcelData.repeatTime.get(existinigStockRow) + 1+"");
+						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 4, tmpStockExcelData.repeatTime.get(existinigStockRow-2) + 1+"");
 						//Enter price in todays date column
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, todaysColumn,tmpSMAIndicatorDetails.stockPrice+"");
 						//Enter Date
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 2,todayDate);
 						//Enter rank
-						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 2,counter+"");
+						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 3,counter+"");
 						
 					} else {
 						//Stock not there in excel. Create entry at lst row
@@ -52,15 +52,18 @@ public class UpdateIndicatedStocks {
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 2, dateFormat.format(new Date()));
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 3, counter+"");
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 4, 0+"");
+						//Enter price in todays date column
+						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, todaysColumn,tmpSMAIndicatorDetails.stockPrice+"");
+						excelLastRow++;
 					}
 					counter++;
 				} else {
 					break;
 				}
 			}
-			outputWorkbook.close();
+			ExcelHandler.saveExcel(PATH_TO_FILE, NAME_OF_FILE, outputWorkbook);
 		} catch (Exception ex) {
-			
+			System.out.println("Error -"+ex);
 		}
 		
 	}
@@ -85,7 +88,7 @@ public class UpdateIndicatedStocks {
 		String cellValue;
 		
 		try {
-			for ( int row = 3;; row++) {
+			for ( int row = 2;; row++) {
 				//stockName
 				cellValue = ExcelHandler.getCellValueX(outputWorkbook, sheetName, row, 1);
 				if (cellValue!=null && !cellValue.isEmpty() && !cellValue.equalsIgnoreCase("")) {
@@ -109,15 +112,15 @@ public class UpdateIndicatedStocks {
 	}
 	
 	private int identifyTodayColumninExcel(XSSFWorkbook outputWorkbook, String sheetName) throws Exception{
-		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy");
 		String todayDate = dateFormat.format(new Date());
 		String cellValue;
 		
-		for (int colCounter = 5;;colCounter++ ) {
-			cellValue = ExcelHandler.getCellValueX(outputWorkbook, sheetName, 3, colCounter);
+		for (int colCounter = 230;;colCounter++ ) {
+			cellValue = ExcelHandler.getCellValueX(outputWorkbook, sheetName, 1, colCounter);
 			if(todayDate.equalsIgnoreCase(cellValue)) {
 				return colCounter;
-			} else if(colCounter>100) {
+			} else if(colCounter>400) {
 				return 0;
 			}
 		}

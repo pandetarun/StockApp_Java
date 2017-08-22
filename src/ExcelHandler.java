@@ -2,9 +2,11 @@
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -53,33 +55,13 @@ public class ExcelHandler {
 		//configBean.getLogger().debug("createWorkBook() Attempting to create read-write workbook");
 		XSSFWorkbook outPutWorkBookx = null;
 		try {
-			/*if (excelToFileMapping == null) {
-				excelToFileMapping = new HashMap<XSSFWorkbook, ExcelAndFileObjectMapping>();
-			}*/
-			
 			File outputFileTmp = null;
-			//if(configBean.getOperatingSystem().equalsIgnoreCase("Windows")){
-				outputFileTmp = new File(excelPath + "\\" + excelFileName);
-//			}
-//			else{
-//				outputFileTmp = new File(excelPath + "/" + excelFileName);
-//			}
-			
+			outputFileTmp = new File(excelPath + "\\" + excelFileName);
 			FileInputStream fileOut = new FileInputStream(outputFileTmp);
 			outPutWorkBookx = new XSSFWorkbook(fileOut);
-			
-			
 		} catch (Exception e) {
-//			if(configBean.getOperatingSystem().equalsIgnoreCase("Windows")){
-//				configBean.getLogger().error("Exception in opening the file " + excelPath + "\\"+ excelFileName + ". Error is -" + e);
-//				
-//			}
-//			else{
-//				configBean.getLogger().error("Exception in opening the file " + excelPath + "/"+ excelFileName + ". Error is -" + e);
-//			}
-//			throw new CreateWorkbookFailedException(e);
+			System.out.println("Error"+e);
 		}
-		//configBean.getLogger().debug("createWorkBook() Read-write workbook created successfully");
 		return outPutWorkBookx;
 	}
 
@@ -170,8 +152,8 @@ public class ExcelHandler {
 		Row excleRow;
 		Cell cell;
 		int cellTypeValue;
-
 		XSSFSheet excelSheet = inPutWorkBookx.getSheet(sheetName);
+		String cellStringValue;
 
 		if (excelSheet == null) {
 			throw new Exception("Sheet Not Found" + sheetName);
@@ -179,7 +161,14 @@ public class ExcelHandler {
 
 		excleRow = excelSheet.getRow(row);
 		cell = excleRow.getCell(col);
+		
+		
+		
 		if (cell != null) {
+			DataFormatter dataFormatter = new DataFormatter();
+			cellStringValue = dataFormatter.formatCellValue(excleRow.getCell(col));
+			return cellStringValue;
+			/*//System.out.println ("Is shows data as show in Excel file" + cellStringValue);
 			cellTypeValue = cell.getCellType();
 			if (cellTypeValue == Cell.CELL_TYPE_STRING) {
 				return cell.getStringCellValue();
@@ -195,7 +184,7 @@ public class ExcelHandler {
 					double cellValue = c.getNumberValue();
 					return String.valueOf(cellValue);
 				}
-			}
+			}*/
 		}
 		return "";
 	}
@@ -216,5 +205,17 @@ public class ExcelHandler {
 			outPutWorkBookx.getSheet(sheetName).getRow(row).createCell(col).setCellValue(tmpContent);
 		}
 		//configBean.getLogger().debug("setCellValueX() Cell value set in Sheet : " + sheetName + "[Row : " + row + " | column : " + col + "]");
+	}
+	
+	
+	public static void saveExcel(String excelPath, String excelFileName, XSSFWorkbook excelFile) {
+		try {
+		FileOutputStream saveExcelFile = new FileOutputStream(new File(excelPath+"\\"+excelFileName));
+		excelFile.write(saveExcelFile);
+		saveExcelFile.flush();
+		saveExcelFile.close();
+		} catch (Exception ex) {
+			System.out.println("ERROR "+ex);
+		}
 	}
 }

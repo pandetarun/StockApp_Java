@@ -12,7 +12,10 @@ public class GenerateIndicationfromMovingAverage {
 	public static int daysToCheck = 5;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 	SMAIndicatorDetails objSMAIndicatorDetails;
-
+	public final static String CONNECTION_STRING = "jdbc:firebirdsql://192.168.0.106:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8";
+	public final static String USER = "SYSDBA";
+	public final static String PASS = "Jan@2017";
+	
 	public static void main(String[] args) {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
@@ -22,7 +25,7 @@ public class GenerateIndicationfromMovingAverage {
 
 	public void CalculateAndSendIndicationfromSMA() {
 		ArrayList<String> stocklist = null;
-
+		UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		int stockcounter = 1;
@@ -30,17 +33,19 @@ public class GenerateIndicationfromMovingAverage {
 			System.out.println("For Stock -> " + stock + " Stock count -> " + stockcounter++);
 			objSMAIndicatorDetails = new SMAIndicatorDetails();
 			objSMAIndicatorDetails.stockCode = stock;
+			
 			CalculateIndicationfromSMA(stock);
 			if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
 				System.out.println("*****************************Stock Added for indication -> " + stock);
 				SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
 			}
-			/*if (stockcounter > 10) {
+			if (stockcounter > 100) {
 				break;
-			}*/
+			}
 		}
 		// Collections.sort(SMAIndicatorDetailsList);
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
+		tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
 		sendTopStockInMail(SMAIndicatorDetailsList);
 		System.out.println("End");
 	}
@@ -55,7 +60,7 @@ public class GenerateIndicationfromMovingAverage {
 		try {
 			stockList = new ArrayList<String>();
 			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8", "SYSDBA", "Jan@2017");
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT NSECODE FROM STOCKDETAILS;");
@@ -106,7 +111,7 @@ public class GenerateIndicationfromMovingAverage {
 		try {
 			prefPeriod = new ArrayList<Integer>();
 			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8", "SYSDBA", "Jan@2017");
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
 			while (resultSet.next()) {
@@ -135,7 +140,7 @@ public class GenerateIndicationfromMovingAverage {
 		try {
 			SMAData = new ArrayList<Float>();
 			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8", "SYSDBA", "Jan@2017");
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT first 20 SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() + " order by tradeddate desc;");
@@ -163,7 +168,7 @@ public class GenerateIndicationfromMovingAverage {
 		try {
 			priceData = new ArrayList<Float>();
 			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8", "SYSDBA", "Jan@2017");
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT first 20 closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;");
@@ -199,6 +204,8 @@ public class GenerateIndicationfromMovingAverage {
 		float lowerLevelDifference = 0;
 		//lastdayPrice = stockPriceValues.get(0);
 		// Logic to get buy condition
+		//Assign price to SMA object to get updated in excel
+		objSMAIndicatorDetails.stockPrice = stockPriceValues.get(0);
 		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
 			if (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck) > 0) {
 				if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) > stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck)) {
@@ -289,7 +296,7 @@ public class GenerateIndicationfromMovingAverage {
 		if (stockPriceValues.get(0) < stockPriceValues.get(1)) { 
 			return;
 		}
-		
+		objSMAIndicatorDetails.stockPrice = stockPriceValues.get(0);
 		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
 			//last day price is less than price daytocheck before
 			if (stockPriceValues.get(0) < stockPriceValues.get(daysToCheck-1)) { 
