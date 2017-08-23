@@ -71,13 +71,12 @@ public class StoreFinancialDataOfStock extends SetupBase {
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/h2/small/span/a"));
 			ele.click();
 			standaloneclick = true;
-		}
-		try {
-			Thread.sleep(1000);
-		} catch(Exception ex) {
-			System.out.println("Error in waiting for drop down suggestion");
-		}
-		
+			try {
+				Thread.sleep(1000);
+			} catch(Exception ex) {
+				System.out.println("Error in waiting for drop down suggestion");
+			}
+		}		
 		//Book Value
 		ele = driver.findElement(By.xpath("//*[@id='content']/div/div/div/section[1]/div[1]/h4[3]/b"));
 		screenData = ele.getText();
@@ -107,7 +106,19 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		companyFinancialDatatmp.yearlyLow = Double.parseDouble(screenData.substring(screenData.indexOf("/")+3, screenData.length()));
 		
 		//Quarter data
-		//int quartercolumn = 2;
+		companyFinancialDatatmp.companyQuarterlyFinancialDataList = CollectQuarterlyData();
+		//Annual data
+		companyFinancialDatatmp.companyAnnualFinancialDataList = CollectAnnualData();		
+		logger.debug("getFiancialDataForStock End");
+		return companyFinancialDatatmp;
+	}
+	
+	private ArrayList<CompanyQuarterlyFinancialData> CollectQuarterlyData() {
+		String screenData;
+		CompanyQuarterlyFinancialData companyQuarterlyFinancialDatatmp = null;
+		ArrayList<CompanyQuarterlyFinancialData> companyQuarterlyFinancialDatatmpList = new ArrayList<CompanyQuarterlyFinancialData>();
+		WebElement ele = null;
+		
 		for (int quartercolumn = 2; quartercolumn<=13;quartercolumn++) {
 			companyQuarterlyFinancialDatatmp = new CompanyQuarterlyFinancialData();
 			//month and Year
@@ -117,48 +128,55 @@ public class StoreFinancialDataOfStock extends SetupBase {
 			companyQuarterlyFinancialDatatmp.year = Integer.parseInt(screenData.substring(screenData.indexOf(" ")+1));
 			//quarterly sales
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[1]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.sales = Double.parseDouble(screenData);
 			//quarterly expenses
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[2]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.expenses = Double.parseDouble(screenData);
 			//quarterly operating profit
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[3]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.operatingProfit = Double.parseDouble(screenData);
 			//quarterly operating profit margin
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[4]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.OPMargin = Double.parseDouble(screenData);
 			//quarterly other income
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[5]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.otherIncome = Double.parseDouble(screenData);		
 			//quarterly depreciation
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[6]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.depreciation = Double.parseDouble(screenData);				
 			//quarterly interest
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[7]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.interest = Double.parseDouble(screenData);		
 			//quarterly profit before tax
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[8]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.profitBeforeTax = Double.parseDouble(screenData);		
 			//quarterly tax
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[9]/td[" + quartercolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.tax = Double.parseDouble(screenData);		
 			//quarterly net profit
 			ele = driver.findElement(By.xpath("//*[@id='quarters']/div/div/table/tbody/tr[10]/td[" + quartercolumn + "]"));										   
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyQuarterlyFinancialDatatmp.netProfit = Double.parseDouble(screenData);
 			companyQuarterlyFinancialDatatmpList.add(companyQuarterlyFinancialDatatmp);
 		}
-		companyFinancialDatatmp.companyQuarterlyFinancialDataList = companyQuarterlyFinancialDatatmpList;
-		//Annual data
+		return companyQuarterlyFinancialDatatmpList;
+	}
+	
+	private ArrayList<CompanyAnnualFinancialData> CollectAnnualData() {
+		ArrayList<CompanyAnnualFinancialData> companyAnnualFinancialDatatmpList = new ArrayList<CompanyAnnualFinancialData>();
+		String screenData;
+		CompanyAnnualFinancialData companyAnnualFinancialDatatmp = null;		
+		WebElement ele = null;
+		
 		for (int annualcolumn = 2; annualcolumn<=13;annualcolumn++) {
 			
 			companyAnnualFinancialDatatmp = new CompanyAnnualFinancialData();					
@@ -169,67 +187,65 @@ public class StoreFinancialDataOfStock extends SetupBase {
 			companyAnnualFinancialDatatmp.year = Integer.parseInt(screenData.substring(screenData.indexOf(" ")+1));
 			//Annual sales
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[1]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.sales = Double.parseDouble(screenData);					
 			//Annual expenses
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[2]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.expenses = Double.parseDouble(screenData);
 			//Annual operating profit
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[3]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.operatingProfit = Double.parseDouble(screenData);
 			//Annual operating profit margin
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[4]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.OPMargin = Double.parseDouble(screenData);
 			//Annual other income
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[5]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.otherIncome = Double.parseDouble(screenData);		
 			//Annual interest
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[6]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.interest = Double.parseDouble(screenData);	
 			//Annual depreciation
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[7]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.depreciation = Double.parseDouble(screenData);				
 				
 			//Annual profit before tax
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[8]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.profitBeforeTax = Double.parseDouble(screenData);		
 			//Annual tax
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[9]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.tax = Double.parseDouble(screenData);		
 			//Annual net profit
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[10]/td[" + annualcolumn + "]"));										   
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.netProfit = Double.parseDouble(screenData);
 			
 			//Annual EPS
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[11]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.EPS = Double.parseDouble(screenData);
 			
 			//Annual Dividend Pay out
 			ele = driver.findElement(By.xpath("//*[@id='annuals']/div[1]/div/table/tbody/tr[12]/td[" + annualcolumn + "]"));										   
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.dividendPayOut = Double.parseDouble(screenData);
 			
 			//Annual cashflow
 			ele = driver.findElement(By.xpath("//*[@id='cashflow']/div/div/table/tbody/tr[4]/td[" + annualcolumn + "]"));
-			screenData = ele.getText();
+			screenData = ele.getText().replace(",", "");
 			companyAnnualFinancialDatatmp.netCashFLow = Double.parseDouble(screenData);			
 			
 			companyAnnualFinancialDatatmpList.add(companyAnnualFinancialDatatmp);
 		}
-		companyFinancialDatatmp.companyAnnualFinancialDataList = companyAnnualFinancialDatatmpList;
 		
-		logger.debug("getFiancialDataForStock End");
-		return companyFinancialDatatmp;
+		return companyAnnualFinancialDatatmpList;
 	}
 	
 	private ArrayList<String> getStockListFromDB() {
