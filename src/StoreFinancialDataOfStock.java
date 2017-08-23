@@ -15,7 +15,9 @@ public class StoreFinancialDataOfStock extends SetupBase {
 	final String URL = "https://www.screener.in";
 	final String timeOut = "2000";
 	boolean standaloneclick = false;
-	
+	public final static String CONNECTION_STRING = "jdbc:firebirdsql://192.168.0.106:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8";
+	public final static String USER = "SYSDBA";
+	public final static String PASS = "Jan@2017";
 	
 	public static void main(String[] args) {
 		StoreFinancialDataOfStock tmpStoreFinancialDataOfStock = new StoreFinancialDataOfStock();
@@ -240,9 +242,7 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		try {
 			stockList = new ArrayList<String>();
 			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(
-					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
-					"SYSDBA", "Jan@2017");
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT BSECODE FROM STOCKDETAILS;");
