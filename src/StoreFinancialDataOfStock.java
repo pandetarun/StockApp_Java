@@ -1,4 +1,3 @@
-import java.io.ObjectInputStream.GetField;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -18,6 +17,8 @@ public class StoreFinancialDataOfStock extends SetupBase {
 	public final static String CONNECTION_STRING = "jdbc:firebirdsql://192.168.0.106:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8";
 	public final static String USER = "SYSDBA";
 	public final static String PASS = "Jan@2017";
+	String stockName;
+	String bseCode;
 	
 	public static void main(String[] args) {
 		StoreFinancialDataOfStock tmpStoreFinancialDataOfStock = new StoreFinancialDataOfStock();
@@ -34,18 +35,16 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		setupSelenium(URL);
 		
 		for (String stockCode : stockList) {
-			companyFinancialDatatmp = getFiancialDataForStock(stockCode);
+			stockName = stockCode.split("!")[1];
+			bseCode = stockCode.split("!")[0];
+			companyFinancialDatatmp = getFiancialDataForStock(stockCode.split("!")[0]);
 			companyFinancialDataList.add(companyFinancialDatatmp);
 		}
 	}
 	
 	private CompanyFinancialData getFiancialDataForStock(String BSECode) {		
 		logger.debug("getFiancialDataForStock Started");
-		CompanyFinancialData companyFinancialDatatmp = new CompanyFinancialData();
-		ArrayList<CompanyAnnualFinancialData> companyAnnualFinancialDatatmpList = new ArrayList<CompanyAnnualFinancialData>();
-		ArrayList<CompanyQuarterlyFinancialData> companyQuarterlyFinancialDatatmpList = new ArrayList<CompanyQuarterlyFinancialData>();
-		CompanyAnnualFinancialData companyAnnualFinancialDatatmp = null;		
-		CompanyQuarterlyFinancialData companyQuarterlyFinancialDatatmp = null;
+		CompanyFinancialData companyFinancialDatatmp = new CompanyFinancialData();		
 		WebElement ele = null;
 		String screenData;
 		
@@ -104,11 +103,13 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		
 		//52 weeks low		
 		companyFinancialDatatmp.yearlyLow = Double.parseDouble(screenData.substring(screenData.indexOf("/")+3, screenData.length()));
-		
+		StoreCompanyFinancialDataToDB(companyFinancialDatatmp);
 		//Quarter data
 		companyFinancialDatatmp.companyQuarterlyFinancialDataList = CollectQuarterlyData();
+		StoreQuarterDataToDB(companyFinancialDatatmp.companyQuarterlyFinancialDataList);
 		//Annual data
-		companyFinancialDatatmp.companyAnnualFinancialDataList = CollectAnnualData();		
+		companyFinancialDatatmp.companyAnnualFinancialDataList = CollectAnnualData();	
+		StoreAnnualDataToDB(companyFinancialDatatmp.companyAnnualFinancialDataList);
 		logger.debug("getFiancialDataForStock End");
 		return companyFinancialDatatmp;
 	}
@@ -248,6 +249,74 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		return companyAnnualFinancialDatatmpList;
 	}
 	
+	private void StoreCompanyFinancialDataToDB(CompanyFinancialData companyFinancialDataObj) {		
+		Statement statement = null;
+		String tmpsql;
+		try {
+			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+							
+			statement = connection.createStatement();
+			tmpsql = "INSERT INTO STOCK_FINANCIAL_DATA (STOCKNAME, BSECODE, BOOKVALUE, FACEVALUE, YEARLYHIGH, YEARLYLOW, STOCKPE, DIVIDENDYIELD) VALUES('" + 
+    				stockName + "','" + bseCode + "'," + companyFinancialDataObj.bookValue + "," + companyFinancialDataObj.faceValue + "," + companyFinancialDataObj.yearlyHigh + 
+    				"," + companyFinancialDataObj.yearlyLow + "," + companyFinancialDataObj.StockPE + "," + companyFinancialDataObj.dividendYield + ");";
+        	statement.executeUpdate(tmpsql);
+			
+			connection.close();
+			connection = null;			
+		} catch (Exception ex) {
+			System.out.println("Error in DB action");
+			logger.error("Error in getStockListFromDB  -> ", ex);
+		}
+	}
+	
+	private void StoreQuarterDataToDB(ArrayList<CompanyQuarterlyFinancialData> companyQuarterlyFinancialDataList) {		
+		Statement statement = null;
+		String tmpsql;
+		try {
+			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			for (CompanyQuarterlyFinancialData stockquarterlyDataCode : companyQuarterlyFinancialDataList) {				
+				statement = connection.createStatement();
+				tmpsql = "INSERT INTO STOCK_QUARTERLY_FINANCIAL_DATA (STOCKNAME, BSECODE, MONTH, YEAR, SALES, EXPENSES, OPERATINGPROFIT, OPMARGIN, OTHERINCOME, INTEREST, DEPRICIATION, PROFITBEFORETAX, TAX, NETPROFIT) VALUES('" + 
+        				stockName + "','" + bseCode + "','" + stockquarterlyDataCode.month + "'," + stockquarterlyDataCode.year + "," + stockquarterlyDataCode.sales + "," + stockquarterlyDataCode.expenses + 
+        				"," + stockquarterlyDataCode.operatingProfit + "," + stockquarterlyDataCode.OPMargin + "," + stockquarterlyDataCode.otherIncome + "," + stockquarterlyDataCode.interest +
+        				stockquarterlyDataCode.depreciation + "," + stockquarterlyDataCode.profitBeforeTax + "," + stockquarterlyDataCode.tax + "," + stockquarterlyDataCode.netProfit + ");";
+				statement.executeUpdate(tmpsql);
+			}
+			connection.close();
+			connection = null;			
+		} catch (Exception ex) {
+			System.out.println("Error in DB action");
+			logger.error("Error in getStockListFromDB  -> ", ex);
+		}
+	}
+
+	
+	private void StoreAnnualDataToDB(ArrayList<CompanyAnnualFinancialData> companyAnnualFinancialDataList) {
+
+		Statement statement = null;
+		String tmpsql;
+		try {
+			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			for (CompanyAnnualFinancialData stockAnnualData : companyAnnualFinancialDataList) {				
+				statement = connection.createStatement();
+				tmpsql = "INSERT INTO STOCK_ANNUAL_FINANCIAL_DATA (STOCKNAME, BSECODE, MONTH, YEAR, SALES, EXPENSES, OPERATINGPROFIT, OPMARGIN, OTHERINCOME, INTEREST, DEPRICIATION, PROFITBEFORETAX, TAX, NETPROFIT, EPS, DIVIDENDPAYOUT, NETCASHFLOW) VALUES('" + 
+        				stockName + "','" + bseCode + "','" + stockAnnualData.month + "'," + stockAnnualData.year + "," + stockAnnualData.sales + "," + stockAnnualData.expenses + 
+        				"," + stockAnnualData.operatingProfit + "," + stockAnnualData.OPMargin + "," + stockAnnualData.otherIncome + "," + stockAnnualData.interest +
+        				stockAnnualData.depreciation + "," + stockAnnualData.profitBeforeTax + "," + stockAnnualData.tax + "," + stockAnnualData.netProfit +
+						stockAnnualData.EPS + "," + stockAnnualData.dividendPayOut + "," + stockAnnualData.netCashFLow + ");";
+				statement.executeUpdate(tmpsql);
+			}
+			connection.close();
+			connection = null;			
+		} catch (Exception ex) {
+			System.out.println("Error in DB action");
+			logger.error("Error in getStockListFromDB  -> ", ex);
+		}
+	}
+	
 	private ArrayList<String> getStockListFromDB() {
 
 		ResultSet resultSet = null;
@@ -258,12 +327,15 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		try {
 			stockList = new ArrayList<String>();
 			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = DriverManager.getConnection(
+					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
+					"SYSDBA", "Jan@2017");
 			statement = connection.createStatement();
 
-			resultSet = statement.executeQuery("SELECT BSECODE FROM STOCKDETAILS;");
+			resultSet = statement.executeQuery("SELECT BSECODE, stockname FROM STOCKDETAILS;");
 			while (resultSet.next()) {
 				stockBSECode = resultSet.getString(1);
+				stockBSECode = stockBSECode + resultSet.getString(2);
 				stockList.add(stockBSECode);
 				// System.out.println("StockNme - " + stockNSECode);
 			}
