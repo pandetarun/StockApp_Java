@@ -31,17 +31,19 @@ public class GenerateIndicationfromMovingAverage {
 		int stockcounter = 1;
 		for (String stock : stocklist) {
 			System.out.println("For Stock -> " + stock + " Stock count -> " + stockcounter++);
-			objSMAIndicatorDetails = new SMAIndicatorDetails();
-			objSMAIndicatorDetails.stockCode = stock;
-			
-			CalculateIndicationfromSMA(stock);
-			if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
-				System.out.println("*****************************Stock Added for indication -> " + stock);
-				SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
+			if(getFinancialIndication(stock)) {	
+				objSMAIndicatorDetails = new SMAIndicatorDetails();
+				objSMAIndicatorDetails.stockCode = stock;
+				
+				CalculateIndicationfromSMA(stock);
+				if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
+					System.out.println("*****************************Stock Added for indication -> " + stock);
+					SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
+				}
 			}
-			if (stockcounter > 100) {
+			/*if (stockcounter > 100) {
 				break;
-			}
+			}*/
 		}
 		// Collections.sort(SMAIndicatorDetailsList);
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
@@ -86,6 +88,7 @@ public class GenerateIndicationfromMovingAverage {
 		ArrayList<Float> higherSMAPeriodValues = null;
 		ArrayList<Float> stockPriceValues = null;
 
+		
 		prefPeriod = GetPreferredSMA(stockCode);
 		if (prefPeriod != null && prefPeriod.size() > 0) {
 			lowerSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(0));
@@ -548,5 +551,39 @@ public class GenerateIndicationfromMovingAverage {
 		SendSuggestedStockInMail mailSender;
         mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
         //mailSender = new SendSuggestedStockInMail("tarun.pandey@accenture.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
+	}
+	
+	private boolean getFinancialIndication(String stockname) {
+		//ArrayList<Float> priceData = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String indication;
+
+		try {
+			//priceData = new ArrayList<Float>();
+			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			statement = connection.createStatement();
+
+			resultSet = statement.executeQuery("SELECT ANNUALSALESINDICATOR FROM STOCK_FINANCIAL_TRACKING where stockname='" + stockname + "';");
+			
+			// DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+			while (resultSet.next()) {
+				indication = resultSet.getString(1);
+				if(indication.equalsIgnoreCase("good")){
+					return true;
+				} else {
+					return false;
+				}
+			}
+			resultSet.close();
+			connection.close();
+			connection = null;
+		} catch (Exception ex) {
+			System.out.println("getFinancialIndication Error in getting indication = " + ex);
+			return false;
+		}
+		
+		return false;
 	}
 }
