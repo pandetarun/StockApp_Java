@@ -15,6 +15,8 @@ public class GenerateIndicationfromMovingAverage {
 	public final static String CONNECTION_STRING = "jdbc:firebirdsql://192.168.0.106:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8";
 	public final static String USER = "SYSDBA";
 	public final static String PASS = "Jan@2017";
+	String stockName;
+	String bseCode;
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -30,14 +32,16 @@ public class GenerateIndicationfromMovingAverage {
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		int stockcounter = 1;
 		for (String stock : stocklist) {
-			System.out.println("For Stock -> " + stock + " Stock count -> " + stockcounter++);
-			if(getFinancialIndication(stock)) {	
+			stockName = stock.split("!")[1];
+			bseCode = stock.split("!")[0];
+			System.out.println("For Stock -> " + stockName + " Stock count -> " + stockcounter++);
+			if(getFinancialIndication(bseCode)) {	
 				objSMAIndicatorDetails = new SMAIndicatorDetails();
-				objSMAIndicatorDetails.stockCode = stock;
+				objSMAIndicatorDetails.stockCode = stockName;
 				
-				CalculateIndicationfromSMA(stock);
+				CalculateIndicationfromSMA(stockName);
 				if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
-					System.out.println("*****************************Stock Added for indication -> " + stock);
+					System.out.println("*****************************Stock Added for indication -> " + stockName);
 					SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
 				}
 			}
@@ -58,17 +62,19 @@ public class GenerateIndicationfromMovingAverage {
 		Statement statement = null;
 		String stockNSECode;
 		ArrayList<String> stockList = null;
-
+		String stockBSECode;
+		
 		try {
 			stockList = new ArrayList<String>();
 			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
 			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			statement = connection.createStatement();
 
-			resultSet = statement.executeQuery("SELECT NSECODE FROM STOCKDETAILS;");
+			resultSet = statement.executeQuery("SELECT BSECODE, stockname FROM STOCKDETAILS;");
 			while (resultSet.next()) {
-				stockNSECode = resultSet.getString(1);
-				stockList.add(stockNSECode);
+				stockBSECode = resultSet.getString(1);
+				stockBSECode = stockBSECode + "!" + resultSet.getString(2);
+				stockList.add(stockBSECode);
 				// System.out.println("StockNme - " + stockNSECode);
 			}
 			resultSet.close();
@@ -565,7 +571,7 @@ public class GenerateIndicationfromMovingAverage {
 			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			statement = connection.createStatement();
 
-			resultSet = statement.executeQuery("SELECT ANNUALSALESINDICATOR FROM STOCK_FINANCIAL_TRACKING where stockname='" + stockname + "';");
+			resultSet = statement.executeQuery("SELECT ANNUALSALESINDICATOR FROM STOCK_FINANCIAL_TRACKING where bsecode='" + stockname + "';");
 			
 			// DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			while (resultSet.next()) {
