@@ -1,5 +1,4 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.DateFormat;
@@ -17,9 +16,6 @@ public class StoreFinancialDataOfStock extends SetupBase {
 	final String URL = "https://www.screener.in";
 	final String timeOut = "2000";
 	boolean standaloneclick = false;
-	public final static String CONNECTION_STRING = "jdbc:firebirdsql://192.168.0.106:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8";
-	public final static String USER = "SYSDBA";
-	public final static String PASS = "Jan@2017";
 	String stockName;
 	String bseCode;
 	
@@ -330,10 +326,8 @@ public class StoreFinancialDataOfStock extends SetupBase {
 	private void StoreCompanyFinancialDataToDB(CompanyFinancialData companyFinancialDataObj) {		
 		Statement statement = null;
 		String tmpsql;
-		try {
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
-							
+		try {			
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 			tmpsql = "INSERT INTO STOCK_FINANCIAL_DATA (STOCKNAME, BSECODE, BOOKVALUE, FACEVALUE, YEARLYHIGH, YEARLYLOW, STOCKPE, DIVIDENDYIELD) VALUES('" + 
     				stockName + "','" + bseCode + "'," + companyFinancialDataObj.bookValue + "," + companyFinancialDataObj.faceValue + "," + companyFinancialDataObj.yearlyHigh + 
@@ -352,8 +346,7 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		Statement statement = null;
 		String tmpsql;
 		try {
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			for (CompanyQuarterlyFinancialData stockquarterlyDataCode : companyQuarterlyFinancialDataList) {				
 				statement = connection.createStatement();
 				tmpsql = "INSERT INTO STOCK_QUARTERLY_FINANCIAL_DATA (STOCKNAME, BSECODE, \"MONTH\", \"YEAR\", SALES, EXPENSES, OPERATINGPROFIT, OPMARGIN, OTHERINCOME, INTEREST, DEPRICIATION, PROFITBEFORETAX, TAX, NETPROFIT) VALUES('" + 
@@ -376,8 +369,7 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		Statement statement = null;
 		String tmpsql;
 		try {
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			for (CompanyAnnualFinancialData stockAnnualData : companyAnnualFinancialDataList) {				
 				statement = connection.createStatement();
 				tmpsql = "INSERT INTO STOCK_ANNUAL_FINANCIAL_DATA (STOCKNAME, BSECODE, \"MONTH\", \"YEAR\", SALES, EXPENSES, OPERATINGPROFIT, OPMARGIN, OTHERINCOME, INTEREST, DEPRICIATION, PROFITBEFORETAX, TAX, NETPROFIT, EPS, DIVIDENDPAYOUT, NETCASHFLOW) VALUES('" + 
@@ -404,10 +396,7 @@ public class StoreFinancialDataOfStock extends SetupBase {
 
 		try {
 			stockList = new ArrayList<String>();
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(
-					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
-					"SYSDBA", "Jan@2017");
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT BSECODE, stockname FROM STOCKDETAILS;");
@@ -496,8 +485,7 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 		String tmpsql;
 		try {
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 			tmpsql = "INSERT INTO STOCK_FINANCIAL_TRACKING (STOCKNAME, BSECODE, DATECOLLECTED, ANNUALSALESINDICATOR, QUARTERSALESINDICATOR, ANNUALPROFITINDICATOR, QUARTERPROFITINDICATOR) VALUES('" + 
     				stockName + "','" + bseCode + "','" + dateFormat.format(new Date()) + "','" + stockFinancialIndicatortmp.annualSalesIndicator + "','" + stockFinancialIndicatortmp.quarterSalesIndicator + 
@@ -524,10 +512,7 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		boolean stockExist = false;		
 
 		try {			
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(
-					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
-					"SYSDBA", "Jan@2017");
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT BSECODE FROM STOCK_FINANCIAL_TRACKING where BSECODE = '" + BSECode + "';");

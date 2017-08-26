@@ -42,10 +42,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 
 		try {
 			stockList = new ArrayList<String>();
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(
-					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
-					"SYSDBA", "Jan@2017");
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT NSECODE FROM STOCKDETAILS;");
@@ -139,10 +136,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 				connection.close();
 				connection = null;
 			}
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(
-					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
-					"SYSDBA", "Jan@2017");
+			connection = StockUtils.connectToDB();
 			smaDataObj = new SMAData();
 			smaDataObj.closePrice = new ArrayList<Float>();
 			smaDataObj.tradeddate = new ArrayList<String>();
@@ -175,10 +169,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 				connection.close();
 				connection = null;
 			}
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(
-					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
-					"SYSDBA", "Jan@2017");
+			connection = StockUtils.connectToDB();
 			smaDataObj = new SMAData();
 			smaDataObj.closePrice = new ArrayList<Float>();
 			smaDataObj.tradeddate = new ArrayList<String>();

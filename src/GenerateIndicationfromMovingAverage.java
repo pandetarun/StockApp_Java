@@ -1,5 +1,4 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.LocalDate;
@@ -12,9 +11,6 @@ public class GenerateIndicationfromMovingAverage {
 	public static int daysToCheck = 5;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 	SMAIndicatorDetails objSMAIndicatorDetails;
-	public final static String CONNECTION_STRING = "jdbc:firebirdsql://192.168.0.106:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8";
-	public final static String USER = "SYSDBA";
-	public final static String PASS = "Jan@2017";
 	String stockName;
 	String bseCode;
 	
@@ -60,14 +56,12 @@ public class GenerateIndicationfromMovingAverage {
 
 		ResultSet resultSet = null;
 		Statement statement = null;
-		String stockNSECode;
 		ArrayList<String> stockList = null;
 		String stockBSECode;
 		
 		try {
 			stockList = new ArrayList<String>();
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT BSECODE, stockname FROM STOCKDETAILS;");
@@ -119,8 +113,7 @@ public class GenerateIndicationfromMovingAverage {
 
 		try {
 			prefPeriod = new ArrayList<Integer>();
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
 			while (resultSet.next()) {
@@ -148,8 +141,7 @@ public class GenerateIndicationfromMovingAverage {
 
 		try {
 			SMAData = new ArrayList<Float>();
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT first 20 SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() + " order by tradeddate desc;");
@@ -176,8 +168,7 @@ public class GenerateIndicationfromMovingAverage {
 
 		try {
 			priceData = new ArrayList<Float>();
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT first 20 closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;");
@@ -556,7 +547,6 @@ public class GenerateIndicationfromMovingAverage {
 		mailBody.append("</table></body></html>");
 		SendSuggestedStockInMail mailSender;
         mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
-        //mailSender = new SendSuggestedStockInMail("tarun.pandey@accenture.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
 	}
 	
 	private boolean getFinancialIndication(String stockname) {
@@ -567,8 +557,7 @@ public class GenerateIndicationfromMovingAverage {
 
 		try {
 			//priceData = new ArrayList<Float>();
-			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
-			connection = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT ANNUALSALESINDICATOR FROM STOCK_FINANCIAL_TRACKING where bsecode='" + stockname + "';");

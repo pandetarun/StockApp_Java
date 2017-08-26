@@ -183,8 +183,7 @@ public class CollectDailyHistory extends SetupBase {
         String stockNSECode;
         try {     
         	storedStockNSECode = new ArrayList<String>();
-        	Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance(); 
-        	connection=DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8","SYSDBA","Jan@2017");
+        	connection = StockUtils.connectToDB();
         	statement = connection.createStatement();
         	
         	resultSet = statement.executeQuery("SELECT NSECODE FROM STOCKDETAILS;");
@@ -233,8 +232,7 @@ public class CollectDailyHistory extends SetupBase {
         String stockNSECode;
         try {
         	storedStockNSECode = new ArrayList<String>();
-        	Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance(); 
-        	connection=DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8","SYSDBA","Jan@2017");
+        	connection = StockUtils.connectToDB();
         	statement = connection.createStatement();        	
         	//tmpsql = "select LASTDATE from ENTEREDSTOCKDETAILS where STOCKNAME = '"+ stockCode + "';";
         	

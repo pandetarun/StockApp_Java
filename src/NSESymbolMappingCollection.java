@@ -37,8 +37,7 @@ public class NSESymbolMappingCollection extends SetupBase {
 		try {
 			if(ReadFileandCreateStockList()) {
 				if(getStoredStockName()) {
-					Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance(); 
-					connection=DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8","SYSDBA","Jan@2017");
+					connection = StockUtils.connectToDB();
 					while (!CollectionUtils.isEqualCollection(stocklistFromFile, storedStockNames)) {
 						setupSelenium(URL);
 						readFileandGetNSEMapping();			
@@ -145,17 +144,12 @@ public class NSESymbolMappingCollection extends SetupBase {
 	
 	private void storeQuotestoDB() {
 		Connection connection = null;
-        //ResultSet resultSet = null;
         Statement statement = null; 
         String tmpsql;
-        try {     
-        	
+        try {
         	Date dateObj = new Date();
-        	//Date yesterday = new Date(dateObj.getTime() - (1000*60*60*24));
     		System.out.println("DB entry started -> " + dateObj.toString());
-        	//DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
-        	Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance(); 
-        	connection=DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8","SYSDBA","Jan@2017");
+    		connection = StockUtils.connectToDB();
         	statement = connection.createStatement();
         	for (StockDetails stockDetails : stockDetailsArray) {
         		tmpsql = "INSERT INTO STOCKDETAILS (STOCKNAME, NSECODE, BSECODE, ISINCODE, SECTOR) VALUES('" + 
@@ -203,8 +197,7 @@ public class NSESymbolMappingCollection extends SetupBase {
         String stockName;
         try {     
         	storedStockNames = new ArrayList<String>();
-        	Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance(); 
-        	connection=DriverManager.getConnection("jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8","SYSDBA","Jan@2017");
+        	connection = StockUtils.connectToDB();
         	statement = connection.createStatement();        	
         	resultSet = statement.executeQuery("SELECT STOCKNAME FROM STOCKDETAILS;");
         	while (resultSet.next()) {
