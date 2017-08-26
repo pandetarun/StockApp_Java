@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 public class CalculateSimpleAndExpMATest {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CalculateSimpleAndExpoMovingAvg.class);
-	static String DATES_FILE = "C:\\Tarun\\Personal\\Tool\\StockApp\\DatesForMA.txt";
+	static String DATES_FILE = "D:\\Tarun\\StockApp_Latest\\DatesForMA.txt";
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -32,8 +32,9 @@ public class CalculateSimpleAndExpMATest {
 		//Get dates for which calculation needs to be done
 		ArrayList<Date> DatesToCalculate = readFileAndGetDates();
 		for(Date datetoCalculateSMA : DatesToCalculate) {
+			
 			for (String stockCode : stockList) {
-				
+				System.out.println("Calculating for Date -> "+datetoCalculateSMA+" and stock -> "+stockCode);
 				//calculate average on bulk
 				//calculateSimpleMovingAverage(stockCode);
 				//calculate average on daily basis
@@ -102,7 +103,7 @@ public class CalculateSimpleAndExpMATest {
 			if (period == 3 || period == 5 || period == 9 || period == 14 || period == 20 || period == 50
 					|| period == 200) {
 				simpleMovingAverage = sumOfClosingPrices / period;
-				System.out.println(" Stock -> " + stockCode + " Period -> " + (counter));
+				//System.out.println(" Stock -> " + stockCode + " Period -> " + (counter));
 				expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), period, dateToCalculate);
 				if (expMovingAvg == -1) {
 					expMovingAvg = simpleMovingAverage;
