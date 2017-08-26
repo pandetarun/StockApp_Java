@@ -446,6 +446,9 @@ public class StoreFinancialDataOfStock extends SetupBase {
 			} else {
 				stockFinancialIndicatortmp.annualProfitIndicator = "good";
 			}
+		} else {
+			stockFinancialIndicatortmp.annualSalesIndicator = "good";
+			stockFinancialIndicatortmp.annualProfitIndicator = "good";
 		}
 		
 		if(companyQuarterlyFinancialDataList.size()>2){
@@ -469,6 +472,9 @@ public class StoreFinancialDataOfStock extends SetupBase {
 			} else {
 				stockFinancialIndicatortmp.quarterProfitIndicator = "good";
 			}
+		} else {
+			stockFinancialIndicatortmp.quarterSalesIndicator = "good";
+			stockFinancialIndicatortmp.quarterProfitIndicator = "good";
 		}
 		
 		

@@ -576,9 +576,9 @@ public class GenerateIndicationfromMovingAverage {
 			connection = null;
 		} catch (Exception ex) {
 			System.out.println("getFinancialIndication Error in getting indication = " + ex);
-			return false;
+			return true;
 		}
-		
-		return false;
+		//Returning true in case of no data to avoid loosing good stock
+		return true;
 	}
 }
