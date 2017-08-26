@@ -41,11 +41,13 @@ public class StoreFinancialDataOfStock extends SetupBase {
 		for (String stockCode : stockList) {
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
-			companyFinancialDatatmp = getFiancialDataForStock(stockCode.split("!")[0]);
-			if(companyFinancialDatatmp!=null)
-				storeStockFinancialIndicators(companyFinancialDatatmp);
-			//companyFinancialDataList.add(companyFinancialDatatmp);
-			System.out.println("Completed for Stock -> " + stockName);
+			if(!StockAlreadyProcessed(bseCode)) {
+				companyFinancialDatatmp = getFiancialDataForStock(stockCode.split("!")[0]);
+				if(companyFinancialDatatmp!=null)
+					storeStockFinancialIndicators(companyFinancialDatatmp);
+				//companyFinancialDataList.add(companyFinancialDatatmp);
+				System.out.println("Completed for Stock -> " + stockName);
+			}
 		}
 	}
 	
@@ -514,5 +516,32 @@ public class StoreFinancialDataOfStock extends SetupBase {
 			return false;
 		}		
 		return true;
+	}
+	
+	private boolean StockAlreadyProcessed(String BSECode) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		boolean stockExist = false;		
+
+		try {			
+			Class.forName("org.firebirdsql.jdbc.FBDriver").newInstance();
+			connection = DriverManager.getConnection(
+					"jdbc:firebirdsql://localhost:3050/D:/Tarun/StockApp_Latest/DB/STOCKAPPDBNEW.FDB?lc_ctype=utf8",
+					"SYSDBA", "Jan@2017");
+			statement = connection.createStatement();
+
+			resultSet = statement.executeQuery("SELECT BSECODE FROM STOCK_FINANCIAL_TRACKING where BSECODE = '" + BSECode + "';");
+			while (resultSet.next()) {
+				stockExist = true;
+			}
+			resultSet.close();
+			connection.close();
+			connection = null;
+			return stockExist;
+		} catch (Exception ex) {
+			System.out.println("getStockListFromDB Error in DB action ->"+ex);
+			logger.error("Error in getStockListFromDB  -> ", ex);
+			return false;
+		}
 	}
 }
