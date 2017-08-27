@@ -17,7 +17,7 @@ public class GenerateIndicationfromMovingAverageTest {
 	SMAIndicatorDetails objSMAIndicatorDetails;
 	String stockName;
 	String bseCode;
-	static String DATES_FILE = "D:\\Tarun\\StockApp_Latest\\DatesForMA.txt";
+	static String DATES_FILE = "C:\\Tarun\\Personal\\Tool\\StockApp\\DatesForMA.txt";
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -33,12 +33,11 @@ public class GenerateIndicationfromMovingAverageTest {
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		int stockcounter = 1;
 		ArrayList<Date> DatesToCalculate = readFileAndGetDates();
-		for(Date datetoCalculateSMA : DatesToCalculate) {
-		
-			for (String stock : stocklist) {
+		for(Date datetoCalculateSMA : DatesToCalculate) {		
+			for (String stock : stocklist) {				
 				stockName = stock.split("!")[1];
 				bseCode = stock.split("!")[0];
-				System.out.println("For Stock -> " + stockName + " Stock count -> " + stockcounter++);
+				System.out.println("Calculating for Date -> "+datetoCalculateSMA+" and stock -> "+stock+ " and Stock count -> " + stockcounter++);
 				if(getFinancialIndication(bseCode)) {	
 					objSMAIndicatorDetails = new SMAIndicatorDetails();
 					objSMAIndicatorDetails.stockCode = stockName;
