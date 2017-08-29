@@ -10,6 +10,7 @@ public class GenerateIndicationfromMovingAverage {
 	Connection connection = null;
 	public static int daysToCheck = 5;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
+	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
 	SMAIndicatorDetails objSMAIndicatorDetails;
 	String stockName;
 	String bseCode;
@@ -26,6 +27,7 @@ public class GenerateIndicationfromMovingAverage {
 		UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
+		SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
 		int stockcounter = 1;
 		for (String stock : stocklist) {
 			stockName = stock.split("!")[1];
@@ -39,6 +41,9 @@ public class GenerateIndicationfromMovingAverage {
 				if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
 					System.out.println("*****************************Stock Added for indication -> " + stockName);
 					SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
+					if(objSMAIndicatorDetails.stockPrice<100) {
+						SMAIndicatorDetailsBelowHundredList.add(objSMAIndicatorDetails);
+					}
 				}
 			}
 			/*if (stockcounter > 100) {
@@ -47,8 +52,11 @@ public class GenerateIndicationfromMovingAverage {
 		}
 		// Collections.sort(SMAIndicatorDetailsList);
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
+		Collections.sort(SMAIndicatorDetailsBelowHundredList, new SMAIndicatorDetailsComparator());
+		
 		tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
-		sendTopStockInMail(SMAIndicatorDetailsList);
+		sendTopStockInMail(SMAIndicatorDetailsList, false);
+		sendTopStockInMail(SMAIndicatorDetailsBelowHundredList, true);
 		System.out.println("End");
 	}
 
@@ -524,7 +532,7 @@ public class GenerateIndicationfromMovingAverage {
 	}
 	
 	
-	private void sendTopStockInMail(ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList) {
+	private void sendTopStockInMail(ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList, Boolean belowHunderd) {
 		StringBuilder mailBody = new StringBuilder();
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>signalSMAToSMA</th><th>SMNSMcrossover</th><th>SMNSMcontinuousGrowth</th><th>SMAToSMApercentageDeviation</th><th>signalPriceToSMA</th><th>PNSMAcrossover</th>"
@@ -546,7 +554,12 @@ public class GenerateIndicationfromMovingAverage {
 		}
 		mailBody.append("</table></body></html>");
 		SendSuggestedStockInMail mailSender;
-        mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
+        if(belowHunderd) {
+        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Below 100 Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
+        } else {
+        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
+        }
+        
 	}
 	
 	private boolean getFinancialIndication(String stockname) {
