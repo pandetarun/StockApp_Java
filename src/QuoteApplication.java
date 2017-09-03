@@ -8,8 +8,10 @@ public class QuoteApplication {
 	final String timeOut = "2000";
 	static Logger logger = Logger.getLogger(QuoteApplication.class);
 	public static void main(String[] args) {
-		String log4jConfigFile = System.getProperty("user.dir")
-				+ File.separator + "log4j.properties";
+//		String log4jConfigFile = System.getProperty("user.dir")
+//				+ File.separator + "log4j.properties";
+		String log4jConfigFile = System.getProperty("log4j.configuration");
+		System.out.println("*************Prop -> "+log4jConfigFile);
 		PropertyConfigurator.configure(log4jConfigFile);
 
 		logger.debug("Java Program Called");
