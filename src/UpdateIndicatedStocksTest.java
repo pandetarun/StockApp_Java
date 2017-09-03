@@ -6,7 +6,7 @@ import java.util.Date;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class UpdateIndicatedStocksTest {
-	private final static String PATH_TO_FILE = "D:\\Tarun\\StockApp_Latest";
+	private final static String PATH_TO_FILE = "C:\\Tarun\\Personal\\Tool\\StockApp";
 	private final static String NAME_OF_FILE = "SuggestedStockListTest.xlsx";
 	StockExcelData tmpStockExcelData = null;
 	int excelLastRow;
@@ -24,7 +24,7 @@ public class UpdateIndicatedStocksTest {
 		int todaysColumn;
 		
 		try {
-			todaysColumn = identifyTodayColumninExcel(outputWorkbook, "SMA");
+			todaysColumn = identifyTodayColumninExcel(outputWorkbook, "SMA", dateToCalculate);
 			readExcelData(outputWorkbook, "SMA");
 			DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 			String todayDate = dateFormat.format(dateToCalculate);
@@ -111,9 +111,9 @@ public class UpdateIndicatedStocksTest {
 		}
 	}
 	
-	private int identifyTodayColumninExcel(XSSFWorkbook outputWorkbook, String sheetName) throws Exception{
+	private int identifyTodayColumninExcel(XSSFWorkbook outputWorkbook, String sheetName, Date dateToCalculate) throws Exception{
 		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy");
-		String todayDate = dateFormat.format(new Date());
+		String todayDate = dateFormat.format(dateToCalculate);
 		String cellValue;
 		
 		for (int colCounter = 230;;colCounter++ ) {
