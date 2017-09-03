@@ -201,98 +201,6 @@ public class GenerateIndicationfromMovingAverage {
 		return priceData;
 	}
 
-	private void calculateIndicationFromMiddleSMAAndPrice(ArrayList<Float> middleSMAPeriodValues, ArrayList<Float> stockPriceValues) {
-//		int positiveCounter = 0;
-//		float nextDayPrice = 0;
-//		float priceToSMADifference = 0;
-//		float twoDaysPriceDifference = 0;
-		//float lastdayPrice = 0;
-		float percentagePriceChange = 0;
-		float priceToSMAPercentageDeviation = 0;
-		float lowerLevelDifference = 0;
-		//lastdayPrice = stockPriceValues.get(0);
-		// Logic to get buy condition
-		//Assign price to SMA object to get updated in excel
-		objSMAIndicatorDetails.stockPrice = stockPriceValues.get(0);
-		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
-			if (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck) > 0) {
-				if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) > stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck)) {
-					objSMAIndicatorDetails.signalPriceToSMA = "buy";
-					percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck)) / stockPriceValues.get(daysToCheck);
-					if ((stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))<0) {
-						lowerLevelDifference = 1;
-					} else {
-						lowerLevelDifference = stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck);
-					}
-					priceToSMAPercentageDeviation = ((stockPriceValues.get(0) - middleSMAPeriodValues.get(0)) - (stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))) / lowerLevelDifference;
-					objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
-					objSMAIndicatorDetails.priceToSMApercentageDeviation = priceToSMAPercentageDeviation;
-				}
-			}
-		}
-
-		// Logic to get put condition
-		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
-			if (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck) < 0) {
-				if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) < stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck)) {
-					if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) < 0) {
-						objSMAIndicatorDetails.signalPriceToSMA = "put";
-						percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck)) / stockPriceValues.get(daysToCheck);
-						if ((stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))<0) {
-							lowerLevelDifference = 1;
-						} else {
-							lowerLevelDifference = stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck);
-						}
-						priceToSMAPercentageDeviation = ((stockPriceValues.get(0) - middleSMAPeriodValues.get(0)) - (stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))) / lowerLevelDifference;
-						objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
-						objSMAIndicatorDetails.priceToSMApercentageDeviation = priceToSMAPercentageDeviation;
-					}
-				}
-			}
-		}
-		
-		
-
-		/*
-		 * for(int counter =0; counter<middleSMAPeriodValues.size(); counter++)
-		 * {
-		 * 
-		 * if(middleSMAPeriodValues.size()> counter && stockPriceValues.size() >
-		 * counter){ priceToSMADifference =
-		 * stockPriceValues.get(counter)-middleSMAPeriodValues.get(counter);
-		 * if(nextDayPrice==0){ twoDaysPriceDifference = 0; } else {
-		 * twoDaysPriceDifference = nextDayPrice -
-		 * stockPriceValues.get(counter); } if(priceToSMADifference>0 &&
-		 * twoDaysPriceDifference>=0) { positiveCounter++; } else { break; }
-		 * if(positiveCounter >= daysToCheck) { //Generate buy indicator
-		 * objSMAIndicatorDetails.signalPriceToSMA = "buy"; //percentage Price
-		 * change will help in ranking the selected stock. More the % change
-		 * more higher the ranking perentagePriceChange = (lastdayPrice -
-		 * stockPriceValues.get(counter)) / lastdayPrice;
-		 * objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
-		 * break; } nextDayPrice = stockPriceValues.get(counter); } else {
-		 * break; } }
-		 * 
-		 * positiveCounter = 0; nextDayPrice = 0; for(int counter =0;
-		 * counter<middleSMAPeriodValues.size(); counter++) {
-		 * if(middleSMAPeriodValues.size()> counter && stockPriceValues.size() >
-		 * counter){ priceToSMADifference =
-		 * stockPriceValues.get(counter)-middleSMAPeriodValues.get(counter);
-		 * if(nextDayPrice==0){ twoDaysPriceDifference = 0; } else {
-		 * twoDaysPriceDifference = nextDayPrice -
-		 * stockPriceValues.get(counter); } if(priceToSMADifference<0 &&
-		 * twoDaysPriceDifference<=0) { positiveCounter++; } else { break; }
-		 * if(positiveCounter >= daysToCheck) { //Generate put indicator
-		 * objSMAIndicatorDetails.signalPriceToSMA="put"; //percentage Price
-		 * change will help in ranking the selected stock. More the % change
-		 * more higher the ranking perentagePriceChange = (lastdayPrice -
-		 * stockPriceValues.get(counter)) / lastdayPrice;
-		 * objSMAIndicatorDetails.percentagePriceChange = perentagePriceChange;
-		 * break; } nextDayPrice = stockPriceValues.get(counter); } else {
-		 * break; } }
-		 */
-	}
-
 	private void calculateIndicationFromMiddleSMAAndPriceV1(ArrayList<Float> middleSMAPeriodValues, ArrayList<Float> stockPriceValues) {
 
 		float percentagePriceChange = 0;
@@ -344,124 +252,6 @@ public class GenerateIndicationfromMovingAverage {
 				objSMAIndicatorDetails.PNSMAcrossover = false;
 			}
 		}
-/*//Put condition later
-		// Logic to get put condition
-		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
-			if (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck) < 0) {
-				if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) < stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck)) {
-					if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) < 0) {
-						objSMAIndicatorDetails.signalPriceToSMA = "put";
-						percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck)) / stockPriceValues.get(daysToCheck);
-						if ((stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))<0) {
-							lowerLevelDifference = 1;
-						} else {
-							lowerLevelDifference = stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck);
-						}
-						priceToSMAPercentageDeviation = ((stockPriceValues.get(0) - middleSMAPeriodValues.get(0)) - (stockPriceValues.get(daysToCheck) - middleSMAPeriodValues.get(daysToCheck))) / lowerLevelDifference;
-						objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
-						objSMAIndicatorDetails.priceToSMApercentageDeviation = priceToSMAPercentageDeviation;
-					}
-				}
-			}
-		}*/
-	}
-	
-	private void calculateIndicationFromLowerSMAAndHigherSMA(ArrayList<Float> lowerSMAPeriodValues, ArrayList<Float> higherSMAPeriodValues) {
-//		int positiveCounter = 0;
-//		float differenceInSMA = 0;
-//		float nextDayLowerSMA = 0;
-//		float twoDaysLowerSMADIfference = 0;
-		float lowerLevelDifference = 0;
-		//float percentagePriceChange = 0;
-		float SMAToSMAPercentageDeviation = 0;
-		// Logic to get buy condition
-		if (lowerSMAPeriodValues.size() > daysToCheck && higherSMAPeriodValues.size() > daysToCheck) {
-			if ((lowerSMAPeriodValues.get(0) - lowerSMAPeriodValues.get(daysToCheck) > 0) && (higherSMAPeriodValues.get(0) - higherSMAPeriodValues.get(daysToCheck) > 0)) {
-				if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) > lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck)) {
-					objSMAIndicatorDetails.signalSMAToSMA = "buy";
-					//percentagePriceChange = (lowerSMAPeriodValues.get(0) - stockPriceValues.get(daysToCheck)) / stockPriceValues.get(daysToCheck);
-					if ((lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck))<0) {
-						lowerLevelDifference = 1;
-					} else {
-						lowerLevelDifference = lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck);
-					}
-					SMAToSMAPercentageDeviation = ((lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0)) - (lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck))) / lowerLevelDifference;
-					//objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
-					objSMAIndicatorDetails.SMAToSMApercentageDeviation = SMAToSMAPercentageDeviation;
-				}
-			}
-		}
-
-		// Logic to get put condition
-		if (lowerSMAPeriodValues.size() > daysToCheck && higherSMAPeriodValues.size() > daysToCheck) {
-			if ((lowerSMAPeriodValues.get(0) - lowerSMAPeriodValues.get(daysToCheck) < 0) && (higherSMAPeriodValues.get(0) - higherSMAPeriodValues.get(daysToCheck) < 0)) {
-				if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) < lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck)) {
-					if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) < 0) {
-						objSMAIndicatorDetails.signalSMAToSMA = "put";
-						//percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck)) / stockPriceValues.get(daysToCheck);
-						if ((lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck))<0) {
-							lowerLevelDifference = 1;
-						} else {
-							lowerLevelDifference = lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck);
-						}
-						SMAToSMAPercentageDeviation = ((lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0)) - (lowerSMAPeriodValues.get(daysToCheck) - higherSMAPeriodValues.get(daysToCheck))) / lowerLevelDifference;
-						//objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
-						objSMAIndicatorDetails.SMAToSMApercentageDeviation = SMAToSMAPercentageDeviation;
-					}
-				}
-			}
-		}
-				
-		
-		/*for (int counter = 0; counter < lowerSMAPeriodValues.size(); counter++) {
-			if (lowerSMAPeriodValues.size() > counter && higherSMAPeriodValues.size() > counter) {
-				differenceInSMA = lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter);
-				if (nextDayLowerSMA == 0) {
-					twoDaysLowerSMADIfference = 0;
-				} else {
-					twoDaysLowerSMADIfference = nextDayLowerSMA - lowerSMAPeriodValues.get(counter);
-				}
-				if (differenceInSMA > 0 && twoDaysLowerSMADIfference >= 0) {
-					positiveCounter++;
-				} else {
-					break;
-				}
-				if (positiveCounter >= daysToCheck) {
-					// Generate buy indicator
-					objSMAIndicatorDetails.signalSMAToSMA = "buy";
-					break;
-				}
-				nextDayLowerSMA = lowerSMAPeriodValues.get(counter);
-			} else {
-				break;
-			}
-		}
-
-		positiveCounter = 0;
-		nextDayLowerSMA = 0;
-		for (int counter = 0; counter < lowerSMAPeriodValues.size(); counter++) {
-			if (lowerSMAPeriodValues.size() > counter && higherSMAPeriodValues.size() > counter) {
-				differenceInSMA = lowerSMAPeriodValues.get(counter) - higherSMAPeriodValues.get(counter);
-				if (nextDayLowerSMA == 0) {
-					twoDaysLowerSMADIfference = 0;
-				} else {
-					twoDaysLowerSMADIfference = nextDayLowerSMA - lowerSMAPeriodValues.get(counter);
-				}
-				if (differenceInSMA < 0 && twoDaysLowerSMADIfference <= 0) {
-					positiveCounter++;
-				} else {
-					break;
-				}
-				if (positiveCounter >= daysToCheck) {
-					// Generate put indicator
-					objSMAIndicatorDetails.signalSMAToSMA = "put";
-					break;
-				}
-				nextDayLowerSMA = lowerSMAPeriodValues.get(counter);
-			} else {
-				break;
-			}
-		}*/
 	}
 	
 	private void calculateIndicationFromLowerSMAAndHigherSMAV1(ArrayList<Float> lowerSMAPeriodValues, ArrayList<Float> higherSMAPeriodValues, ArrayList<Float> stockPriceValues) {
@@ -555,9 +345,9 @@ public class GenerateIndicationfromMovingAverage {
 		mailBody.append("</table></body></html>");
 		SendSuggestedStockInMail mailSender;
         if(belowHunderd) {
-        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Below 100 Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
+        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","SMA -> Below 100 Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
         } else {
-        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
+        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","SMA -> Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
         }
         
 	}

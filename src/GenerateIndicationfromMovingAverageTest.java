@@ -29,7 +29,7 @@ public class GenerateIndicationfromMovingAverageTest {
 	public void CalculateAndSendIndicationfromSMA() {
 		ArrayList<String> stocklist = null;
 		UpdateIndicatedStocksTest tmpUpdateIndicatedStocks = new UpdateIndicatedStocksTest();
-		stocklist = getStockListFromDB();
+		stocklist = StockUtils.getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		int stockcounter = 1;
 		ArrayList<Date> DatesToCalculate = readFileAndGetDates();
@@ -38,7 +38,7 @@ public class GenerateIndicationfromMovingAverageTest {
 				stockName = stock.split("!")[1];
 				bseCode = stock.split("!")[0];
 				System.out.println("Calculating for Date -> "+datetoCalculateSMA+" and stock -> "+stock+ " and Stock count -> " + stockcounter++);
-				if(getFinancialIndication(bseCode)) {	
+				if(StockUtils.getFinancialIndication(bseCode)) {	
 					objSMAIndicatorDetails = new SMAIndicatorDetails();
 					objSMAIndicatorDetails.stockCode = stockName;
 					
@@ -78,34 +78,7 @@ public class GenerateIndicationfromMovingAverageTest {
 		return DatesToCalculate;
 	}
 
-	private ArrayList<String> getStockListFromDB() {
-
-		ResultSet resultSet = null;
-		Statement statement = null;
-		ArrayList<String> stockList = null;
-		String stockBSECode;
-		
-		try {
-			stockList = new ArrayList<String>();
-			connection = StockUtils.connectToTestDB();
-			statement = connection.createStatement();
-
-			resultSet = statement.executeQuery("SELECT BSECODE, stockname FROM STOCKDETAILS;");
-			while (resultSet.next()) {
-				stockBSECode = resultSet.getString(1);
-				stockBSECode = stockBSECode + "!" + resultSet.getString(2);
-				stockList.add(stockBSECode);
-				// System.out.println("StockNme - " + stockNSECode);
-			}
-			resultSet.close();
-			connection.close();
-			connection = null;
-			return stockList;
-		} catch (Exception ex) {
-			System.out.println("Error in DB action");
-			return null;
-		}
-	}
+	
 
 	private void CalculateIndicationfromSMA(String stockCode, Date dateToCalculate) {
 		ArrayList<Integer> prefPeriod = null;
@@ -577,38 +550,5 @@ public class GenerateIndicationfromMovingAverageTest {
 		mailBody.append("</table></body></html>");
 		SendSuggestedStockInMail mailSender;
         mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Stocklist on "+(new Date()).toString(),mailBody.toString());
-	}
-	
-	private boolean getFinancialIndication(String stockname) {
-		//ArrayList<Float> priceData = null;
-		ResultSet resultSet = null;
-		Statement statement = null;
-		String indication;
-
-		try {
-			//priceData = new ArrayList<Float>();
-			connection = StockUtils.connectToTestDB();
-			statement = connection.createStatement();
-
-			resultSet = statement.executeQuery("SELECT ANNUALSALESINDICATOR FROM STOCK_FINANCIAL_TRACKING where bsecode='" + stockname + "';");
-			
-			// DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-			while (resultSet.next()) {
-				indication = resultSet.getString(1);
-				if(indication.equalsIgnoreCase("good")){
-					return true;
-				} else {
-					return false;
-				}
-			}
-			resultSet.close();
-			connection.close();
-			connection = null;
-		} catch (Exception ex) {
-			System.out.println("getFinancialIndication Error in getting indication = " + ex);
-			return true;
-		}
-		//Returning true in case of no data to avoid loosing good stock
-		return true;
 	}
 }

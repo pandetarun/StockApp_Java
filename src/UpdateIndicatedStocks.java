@@ -41,7 +41,8 @@ public class UpdateIndicatedStocks {
 						//Enter price in todays date column
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, todaysColumn,tmpSMAIndicatorDetails.stockPrice+"");
 						//Enter Date
-						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 2,todayDate);
+						
+						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 2,tmpSMAIndicatorDetails.signalDate.toString());
 						//Enter rank
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", existinigStockRow, 3,counter+"");
 						
@@ -49,7 +50,7 @@ public class UpdateIndicatedStocks {
 						//Stock not there in excel. Create entry at lst row
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 1, tmpSMAIndicatorDetails.stockCode);
 						//DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
-						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 2, dateFormat.format(new Date()));
+						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 2, dateFormat.format(tmpSMAIndicatorDetails.signalDate));
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 3, counter+"");
 						ExcelHandler.setCellValueX(outputWorkbook, "SMA", excelLastRow, 4, 0+"");
 						//Enter price in todays date column

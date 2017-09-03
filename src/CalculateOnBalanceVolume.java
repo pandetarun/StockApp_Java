@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 public class CalculateOnBalanceVolume {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CalculateOnBalanceVolume.class);	
+	String stockName;
+	String bseCode;
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -24,18 +26,20 @@ public class CalculateOnBalanceVolume {
 	
 	private void OnBalanceVolumeCalculation() {
 		ArrayList<String> stockList = null;
-		stockList = getStockListFromDB();
+		stockList = StockUtils.getStockListFromDB();
 		ArrayList<OnBalanceVolumeIndicator> onBalanceSelectedStockList = new ArrayList<OnBalanceVolumeIndicator>();
 		OnBalanceVolumeIndicator tmpOnBalanceVolumeIndicator;
 		for (String stockCode : stockList) {
 			//calculate average on bulk
 			//calculateOnBalanceVolume(stockCode);
-			tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode);
-			if (tmpOnBalanceVolumeIndicator!=null) {
-				onBalanceSelectedStockList.add(tmpOnBalanceVolumeIndicator);
+			stockName = stockCode.split("!")[1];
+			bseCode = stockCode.split("!")[0];
+			if(StockUtils.getFinancialIndication(bseCode)) {
+				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode);
+				if (tmpOnBalanceVolumeIndicator!=null) {
+					onBalanceSelectedStockList.add(tmpOnBalanceVolumeIndicator);
+				}
 			}
-			//calculate average on daily basis
-			//calculateSimpleMovingAverageDaily(stockCode);
 		}
 	}
 	
@@ -169,9 +173,7 @@ public class CalculateOnBalanceVolume {
 		long volume;
 		int counter = 0;
 		OnBalanceVolumeData onBalanceVolumeDataObj = null;
-		if (stockCode.equalsIgnoreCase("UPL")) {
-			System.out.println("TEst");
-		}
+		
 		try {
 			if (connection != null) {
 				connection.close();
