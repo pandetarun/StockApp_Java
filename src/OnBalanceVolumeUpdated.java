@@ -26,8 +26,11 @@ public class OnBalanceVolumeUpdated {
 		logger.debug("CalculateOnBalanceVolume End");
 	}
 	
-	private void OnBalanceVolumeCalculation() {
+	public void OnBalanceVolumeCalculation() {
 		ArrayList<String> stockList = null;
+		Date todayDate = new Date();
+		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+			return;
 		stockList = StockUtils.getStockListFromDB();
 		ArrayList<OnBalanceVolumeIndicator> onBalanceSelectedStockList = new ArrayList<OnBalanceVolumeIndicator>();
 		ArrayList<OnBalanceVolumeIndicator> onBalanceSelectedBelowHundredStockList = new ArrayList<OnBalanceVolumeIndicator>();

@@ -6,7 +6,7 @@ import java.util.Date;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class UpdateIndicatedStocks {
-	private final static String PATH_TO_FILE = "C:\\Tarun\\Personal\\Tool\\StockApp";
+	private final static String PATH_TO_FILE = "D:\\Tarun\\StockApp_Latest\\Java";
 	private final static String NAME_OF_FILE = "SuggestedStockList.xlsx";
 	StockExcelData tmpStockExcelData = null;
 	int excelLastRow;

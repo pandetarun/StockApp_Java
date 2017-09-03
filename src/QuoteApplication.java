@@ -29,8 +29,8 @@ public class QuoteApplication {
 				GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
 				obj.CalculateAndSendIndicationfromSMA();
 			} else if (args[0].equalsIgnoreCase("volumeindicator")) {
-				GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
-				obj.CalculateAndSendIndicationfromSMA();
+				OnBalanceVolumeUpdated obj = new OnBalanceVolumeUpdated();
+				obj.OnBalanceVolumeCalculation();
 			}
 		} else {
 			System.out.println("No Args specified");

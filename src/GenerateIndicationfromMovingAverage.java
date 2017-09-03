@@ -24,6 +24,9 @@ public class GenerateIndicationfromMovingAverage {
 
 	public void CalculateAndSendIndicationfromSMA() {
 		ArrayList<String> stocklist = null;
+		Date todayDate = new Date();
+		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+			return;
 		UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();

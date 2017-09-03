@@ -1,5 +1,4 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -23,6 +22,10 @@ public class CalculateSimpleAndExpoMovingAvg {
 	
 	public void MovingAverageCalculation(){
 		ArrayList<String> stockList = null;
+		Date todayDate = new Date();
+		
+		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+			return;
 		stockList = getStockListFromDB();
 
 		for (String stockCode : stockList) {
