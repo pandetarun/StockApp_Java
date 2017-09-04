@@ -14,27 +14,35 @@ public class QuoteApplication {
 		System.out.println("*************Prop -> "+log4jConfigFile);
 		PropertyConfigurator.configure(log4jConfigFile);
 
-		logger.debug("Java Program Called");
+		logger.debug("QuoteApplication Started");
 		if (args.length > 0) {
 			if (args[0].equalsIgnoreCase("test")) {
 				logger.debug("test called");
 			}
 			if (args[0].equalsIgnoreCase("quote")) {
+				logger.debug("Daily Quote Collection Started");
 				CollectDailyStockData obj = new CollectDailyStockData();
 				obj.startCollectingDailyData();
+				logger.debug("Daily Quote Collection End");
 			} else if (args[0].equalsIgnoreCase("movingaveragecalculation")) {
+				logger.debug("MA Calculation Started");
 				CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
 				obj.MovingAverageCalculation();
+				logger.debug("MA Calculation End");
 			} else if (args[0].equalsIgnoreCase("movingaverageindicator")) {
+				logger.debug("MA Indication Started");
 				GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
 				obj.CalculateAndSendIndicationfromSMA();
+				logger.debug("MA Indication End");
 			} else if (args[0].equalsIgnoreCase("volumeindicator")) {
+				logger.debug("Volume Indication Started");
 				OnBalanceVolumeUpdated obj = new OnBalanceVolumeUpdated();
 				obj.OnBalanceVolumeCalculation();
+				logger.debug("Volume Indication End");
 			}
 		} else {
 			System.out.println("No Args specified");
 		}
-		logger.debug("Java Program Called");
+		logger.debug("QuoteApplication end");
 	}
 }
