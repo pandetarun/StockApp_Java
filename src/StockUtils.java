@@ -47,7 +47,7 @@ public class StockUtils {
 
 		try {
 			//priceData = new ArrayList<Float>();
-			connection = StockUtils.connectToTestDB();
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT ANNUALSALESINDICATOR FROM STOCK_FINANCIAL_TRACKING where bsecode='" + bseCode + "';");
@@ -81,7 +81,7 @@ public class StockUtils {
 		
 		try {
 			stockList = new ArrayList<String>();
-			connection = StockUtils.connectToTestDB();
+			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
 			resultSet = statement.executeQuery("SELECT BSECODE, stockname, NSECODE FROM STOCKDETAILS;");

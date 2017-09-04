@@ -49,9 +49,9 @@ public class GenerateIndicationfromMovingAverage {
 					}
 				}
 			}
-			/*if (stockcounter > 100) {
+			if (stockcounter > 50) {
 				break;
-			}*/
+			}
 		}
 		// Collections.sort(SMAIndicatorDetailsList);
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
