@@ -26,13 +26,19 @@ public class CalculateSimpleAndExpoMovingAvg {
 		
 		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
 			return;
-		stockList = getStockListFromDB();
+		stockList = StockUtils.getStockListFromDB();
+		String stockName;
+		String bseCode;
+		String nseCode;
 
 		for (String stockCode : stockList) {
 			//calculate average on bulk
 			//calculateSimpleMovingAverage(stockCode);
 			//calculate average on daily basis
-			calculateSimpleMovingAverageDaily(stockCode);
+			stockName = stockCode.split("!")[1];
+			bseCode = stockCode.split("!")[0];
+			nseCode = stockCode.split("!")[2];
+			calculateSimpleMovingAverageDaily(nseCode);
 		}
 	}
 
