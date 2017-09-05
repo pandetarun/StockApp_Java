@@ -64,8 +64,13 @@ public class GenerateIndicationfromMovingAverage {
 		
 		tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
 		logger.debug("CalculateAndSendIndicationfromSMA start mail");
-		sendTopStockInMail(SMAIndicatorDetailsList, false);
-		sendTopStockInMail(SMAIndicatorDetailsBelowHundredList, true);
+		if(SMAIndicatorDetailsList.size()>0) {
+			sendTopStockInMail(SMAIndicatorDetailsList, false);
+			sendTopStockInMail(SMAIndicatorDetailsBelowHundredList, true);
+		} else {
+			logger.error("CalculateAndSendIndicationfromSMA No stock to send in mail");
+		}
+		
 		logger.debug("CalculateAndSendIndicationfromSMA end mail");
 		System.out.println("End");
 	}
