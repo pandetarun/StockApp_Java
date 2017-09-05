@@ -17,11 +17,12 @@ public class GenerateCombinedIndication {
 	public static void main(String[] args) {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
-		GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
-		obj.CalculateAndSendIndicationfromSMA();
+		GenerateCombinedIndication obj = new GenerateCombinedIndication();
+		obj.generateCombinedIndicationForStocks();
 	}
 
 	public void generateCombinedIndicationForStocks() {
+		logger.debug("generateCombinedIndicationForStocks Started");
 		ArrayList<String> stocklist = null;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
@@ -60,8 +61,10 @@ public class GenerateCombinedIndication {
 			objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
 			objFinalSelectedStock.BBIndicator = bbIndicator;
 			objFinalSelectedStockList.add(objFinalSelectedStock);
+			counter++;
 		}
 		sendTopStockInMail(objFinalSelectedStockList, false);
+		logger.debug("generateCombinedIndicationForStocks End");
 	}
 	
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd) {

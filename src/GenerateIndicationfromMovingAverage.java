@@ -32,7 +32,7 @@ public class GenerateIndicationfromMovingAverage {
 		Date todayDate = new Date();
 		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
 			return;
-		UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
+		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = StockUtils.getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
@@ -55,9 +55,9 @@ public class GenerateIndicationfromMovingAverage {
 					}
 				}
 			}
-			/*if (stockcounter > 50) {
+			if (stockcounter > 200) {
 				break;
-			}*/
+			}
 		}
 		logger.debug("CalculateAndSendIndicationfromSMA calculation completed");
 		// Collections.sort(SMAIndicatorDetailsList);
@@ -65,7 +65,7 @@ public class GenerateIndicationfromMovingAverage {
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
 		Collections.sort(SMAIndicatorDetailsBelowHundredList, new SMAIndicatorDetailsComparator());
 		
-		tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
+		//tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
 		logger.debug("CalculateIndicationfromSMA end");
 		System.out.println("End");
 	}
@@ -308,7 +308,7 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			if (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) > 0 && (stockPriceValues.get(0) - middleSMAPeriodValues.get(0) > stockPriceValues.get(daysToCheck-1) - middleSMAPeriodValues.get(daysToCheck-1))) {
 				objSMAIndicatorDetails.signalPriceToSMA = "buy";
-				percentagePriceChange = (stockPriceValues.get(0) - stockPriceValues.get(daysToCheck-1)) / stockPriceValues.get(daysToCheck-1);
+				percentagePriceChange = ((stockPriceValues.get(0) - stockPriceValues.get(daysToCheck-1)) / stockPriceValues.get(daysToCheck-1))*100;
 				objSMAIndicatorDetails.percentagePriceChange = percentagePriceChange;
 				if ((stockPriceValues.get(daysToCheck-1) - middleSMAPeriodValues.get(daysToCheck-1))<0) {
 					lowerLevelDifference = 1;

@@ -215,7 +215,7 @@ public class CalculateBollingerBands {
         ArrayList<Float> tmpPeriodData;     
         Date date = null;
          
-		date = new Date(System.currentTimeMillis()-1*24*60*60*1000);
+		//date = new Date(System.currentTimeMillis()-1*24*60*60*1000);
 		
 		String bbPeriod = getBBPeriod(stockCode);
 		if(bbPeriod == null) {
