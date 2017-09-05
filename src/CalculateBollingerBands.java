@@ -1,6 +1,8 @@
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,7 +37,8 @@ public class CalculateBollingerBands {
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
-			BulkBollingerBandCalculateAndStore(nseCode);
+			//BulkBollingerBandCalculateAndStore(nseCode);
+			calculateBollingerBandsDaily(nseCode);
 		}
 	}
 	
@@ -64,7 +67,7 @@ public class CalculateBollingerBands {
 		ArrayList<String> bbPeriodArray = new ArrayList<String> (Arrays.asList(tmplist));
 		ArrayList<String> tmpBBPeriodArray;
 		System.out.println("Creating BB entry for stock -> " + stockCode);
-		objDailyStockDataList = getStockDetailsFromDBForDaily(stockCode);
+		objDailyStockDataList = getStockDetailsFromDBForDaily(stockCode, null);
 		if(objDailyStockDataList.size()>0) {
 			for(int iterationcounter = 0; iterationcounter<200; iterationcounter++) {
 				if(objDailyStockDataList.size()<14) {
@@ -141,13 +144,13 @@ public class CalculateBollingerBands {
 		}
 	}
 	
-	private ArrayList<DailyStockData> getStockDetailsFromDBForDaily(String stockCode) {
+	private ArrayList<DailyStockData> getStockDetailsFromDBForDaily(String stockCode, Date bbDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		ArrayList<DailyStockData> objDailyStockDataList = new ArrayList<DailyStockData>();
 		DailyStockData objDailyStockData = null;
 		String tmpSQL;
-		
+		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 		try {
 			if (connection != null) {
 				connection.close();
@@ -155,7 +158,11 @@ public class CalculateBollingerBands {
 			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();	
-			tmpSQL = "SELECT CLOSEPRICE, HIGHPRICE, LOWPRICE, VOLUME, TRADEDDATE, OPENPRICE from DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;";
+			if(bbDate!=null) {
+				tmpSQL = "SELECT CLOSEPRICE, HIGHPRICE, LOWPRICE, VOLUME, TRADEDDATE, OPENPRICE from DAILYSTOCKDATA where stockname='" + stockCode + "' and tradeddate <= '" + dateFormat.format(bbDate) +"' order by tradeddate desc;";
+			} else {
+				tmpSQL = "SELECT CLOSEPRICE, HIGHPRICE, LOWPRICE, VOLUME, TRADEDDATE, OPENPRICE from DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;";
+			}
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				objDailyStockData = new DailyStockData();
@@ -205,8 +212,11 @@ public class CalculateBollingerBands {
         float simpleMA, tmpvar;
         float closingPrice = 0;
         ArrayList<Float> periodData = null;
-        ArrayList<Float> tmpPeriodData;        
-        
+        ArrayList<Float> tmpPeriodData;     
+        Date date = null;
+         
+		date = new Date(System.currentTimeMillis()-1*24*60*60*1000);
+		
 		String bbPeriod = getBBPeriod(stockCode);
 		if(bbPeriod == null) {
 			logger.error("Null Bb Period for stock -> "+stockCode);
@@ -217,7 +227,7 @@ public class CalculateBollingerBands {
 		ArrayList<String> bbPeriodArray = new ArrayList<String> (Arrays.asList(tmplist));
 		//ArrayList<String> tmpBBPeriodArray;
 		System.out.println("Creating BB entry for stock -> " + stockCode);
-		objDailyStockDataList = getStockDetailsFromDBForDaily(stockCode);
+		objDailyStockDataList = getStockDetailsFromDBForDaily(stockCode, date);
 		if(objDailyStockDataList.size()>0) {			
 			counter = 1;
 			totalPrice = 0;
@@ -262,11 +272,11 @@ public class CalculateBollingerBands {
 		System.out.println("Test");
 	}
 	
-	public boolean getBBIndicationForStock(String stockCode) {
+	public String getBBIndicationForStock(String stockCode) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		ArrayList<Float> dailyBandwidth = new ArrayList<Float>();
-		boolean bbContracting = true;
+		String bbContracting = "Contracting";
 		float BBcontractingPercentage;
 		String tmpSQL;
 		boolean onedaydeviation = false;
@@ -286,21 +296,24 @@ public class CalculateBollingerBands {
 			for(int counter = 0; counter< dailyBandwidth.size()-1; counter++) {
 				BBcontractingPercentage = (dailyBandwidth.get(counter) - dailyBandwidth.get(counter+1))/dailyBandwidth.get(counter+1);
 				if(dailyBandwidth.get(counter) > dailyBandwidth.get(counter+1)){
-					bbContracting = false;
-					break;							
-				} else if(BBcontractingPercentage <= ACCEPTED_PERCENTAGE_DEVIATION) {
-					if(onedaydeviation) {
-						bbContracting = false;
-						break;
+					if(BBcontractingPercentage <= ACCEPTED_PERCENTAGE_DEVIATION) {
+						if(onedaydeviation) {
+							bbContracting = "expanding";
+							break;
+						}
+						onedaydeviation = true;
+					} else {
+						bbContracting = "expanding";
+						break;	
 					}
-					onedaydeviation = true;
+				} else {
 				}
 			}
 			return bbContracting;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
-			return false;
+			return "expanding";
 		}
 	}
 }

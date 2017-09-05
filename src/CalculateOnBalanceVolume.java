@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+
 public class CalculateOnBalanceVolume {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CalculateOnBalanceVolume.class);	
@@ -68,7 +69,7 @@ public class CalculateOnBalanceVolume {
 		}
 	}
 	
-	private OnBalanceVolumeIndicator calculateOnBalanceVolumeDaily(String stockCode) {
+	public OnBalanceVolumeIndicator calculateOnBalanceVolumeDaily(String stockCode) {
 		OnBalanceVolumeData stockDetails = null;
 		long onBalanceVolume = 0;
 		float lastDayClosingPrice = 0;
