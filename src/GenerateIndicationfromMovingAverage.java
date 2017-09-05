@@ -16,6 +16,7 @@ public class GenerateIndicationfromMovingAverage {
 	SMAIndicatorDetails objSMAIndicatorDetails;
 	String stockName;
 	String bseCode;
+	String nseCode;
 	static Logger logger = Logger.getLogger(CalculateSimpleAndExpoMovingAvg.class);
 	
 	public static void main(String[] args) {
@@ -25,27 +26,80 @@ public class GenerateIndicationfromMovingAverage {
 		obj.CalculateAndSendIndicationfromSMA();
 	}
 
-	public void CalculateAndSendIndicationfromSMA() {
+	public void CalculateIndicationfromSMA() {
+		logger.debug("CalculateIndicationfromSMA start");
 		ArrayList<String> stocklist = null;
 		Date todayDate = new Date();
 		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
 			return;
 		UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
-		stocklist = getStockListFromDB();
+		stocklist = StockUtils.getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
 		int stockcounter = 1;
 		for (String stock : stocklist) {
 			stockName = stock.split("!")[1];
 			bseCode = stock.split("!")[0];
-			System.out.println("For Stock -> " + stockName + " Stock count -> " + stockcounter++);
+			nseCode = stock.split("!")[2];
+			System.out.println("For Stock -> " + nseCode + " Stock count -> " + stockcounter++);
 			if(getFinancialIndication(bseCode)) {	
 				objSMAIndicatorDetails = new SMAIndicatorDetails();
-				objSMAIndicatorDetails.stockCode = stockName;
+				objSMAIndicatorDetails.stockCode = nseCode;
 				
-				CalculateIndicationfromSMA(stockName);
+				CalculateIndicationfromSMA(nseCode);
 				if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
-					System.out.println("*****************************Stock Added for indication -> " + stockName);
+					System.out.println("*****************************Stock Added for indication -> " + nseCode);
+					SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
+					if(objSMAIndicatorDetails.stockPrice<100) {
+						SMAIndicatorDetailsBelowHundredList.add(objSMAIndicatorDetails);
+					}
+				}
+			}
+			/*if (stockcounter > 50) {
+				break;
+			}*/
+		}
+		logger.debug("CalculateAndSendIndicationfromSMA calculation completed");
+		// Collections.sort(SMAIndicatorDetailsList);
+		logger.debug("CalculateAndSendIndicationfromSMA start mail");
+		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
+		Collections.sort(SMAIndicatorDetailsBelowHundredList, new SMAIndicatorDetailsComparator());
+		
+		tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
+		logger.debug("CalculateIndicationfromSMA end");
+		System.out.println("End");
+	}
+	
+	public ArrayList<SMAIndicatorDetails> getIndicationStocks() {
+		return SMAIndicatorDetailsList;
+	}
+	
+	public ArrayList<SMAIndicatorDetails> getBelowHunderdIndicationStocks() {
+		return SMAIndicatorDetailsBelowHundredList;
+	}
+	
+	public void CalculateAndSendIndicationfromSMA() {
+		ArrayList<String> stocklist = null;
+		Date todayDate = new Date();
+		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+			return;
+		UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
+		stocklist = StockUtils.getStockListFromDB();
+		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
+		SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
+		int stockcounter = 1;
+		for (String stock : stocklist) {
+			stockName = stock.split("!")[1];
+			bseCode = stock.split("!")[0];
+			nseCode = stock.split("!")[2];
+			System.out.println("For Stock -> " + nseCode + " Stock count -> " + stockcounter++);
+			if(getFinancialIndication(bseCode)) {	
+				objSMAIndicatorDetails = new SMAIndicatorDetails();
+				objSMAIndicatorDetails.stockCode = nseCode;
+				
+				CalculateIndicationfromSMA(nseCode);
+				if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
+					System.out.println("*****************************Stock Added for indication -> " + nseCode);
 					SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
 					if(objSMAIndicatorDetails.stockPrice<100) {
 						SMAIndicatorDetailsBelowHundredList.add(objSMAIndicatorDetails);
