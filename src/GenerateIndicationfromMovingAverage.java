@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 public class GenerateIndicationfromMovingAverage {
 	Connection connection = null;
 	public static int daysToCheck = 5;
@@ -14,6 +16,7 @@ public class GenerateIndicationfromMovingAverage {
 	SMAIndicatorDetails objSMAIndicatorDetails;
 	String stockName;
 	String bseCode;
+	static Logger logger = Logger.getLogger(CalculateSimpleAndExpoMovingAvg.class);
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -49,17 +52,21 @@ public class GenerateIndicationfromMovingAverage {
 					}
 				}
 			}
-			if (stockcounter > 50) {
+			/*if (stockcounter > 50) {
 				break;
-			}
+			}*/
 		}
+		logger.debug("CalculateAndSendIndicationfromSMA calculation completed");
 		// Collections.sort(SMAIndicatorDetailsList);
+		logger.debug("CalculateAndSendIndicationfromSMA start mail");
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
 		Collections.sort(SMAIndicatorDetailsBelowHundredList, new SMAIndicatorDetailsComparator());
 		
 		tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
+		logger.debug("CalculateAndSendIndicationfromSMA start mail");
 		sendTopStockInMail(SMAIndicatorDetailsList, false);
 		sendTopStockInMail(SMAIndicatorDetailsBelowHundredList, true);
+		logger.debug("CalculateAndSendIndicationfromSMA end mail");
 		System.out.println("End");
 	}
 
@@ -326,6 +333,7 @@ public class GenerateIndicationfromMovingAverage {
 	
 	
 	private void sendTopStockInMail(ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList, Boolean belowHunderd) {
+		logger.debug("sendTopStockInMail Started");
 		StringBuilder mailBody = new StringBuilder();
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>signalSMAToSMA</th><th>SMNSMcrossover</th><th>SMNSMcontinuousGrowth</th><th>SMAToSMApercentageDeviation</th><th>signalPriceToSMA</th><th>PNSMAcrossover</th>"
@@ -347,12 +355,12 @@ public class GenerateIndicationfromMovingAverage {
 		}
 		mailBody.append("</table></body></html>");
 		SendSuggestedStockInMail mailSender;
-        if(belowHunderd) {
+        if(belowHunderd && SMAIndicatorDetailsList.size() > 0) {
         	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","SMA -> Below 100 Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
-        } else {
+        } else if( SMAIndicatorDetailsList.size() > 0 ){
         	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","SMA -> Stocklist on "+SMAIndicatorDetailsList.get(0).signalDate.toString(),mailBody.toString());
         }
-        
+        logger.debug("sendTopStockInMail end");
 	}
 	
 	private boolean getFinancialIndication(String stockname) {
