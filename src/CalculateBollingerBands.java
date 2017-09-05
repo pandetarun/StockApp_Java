@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 public class CalculateBollingerBands {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CalculateBollingerBands.class);
+	public final static int ACCEPTED_PERCENTAGE_DEVIATION = 10;
+	
 	public static void main(String[] args) {
 		Date dte = new Date();
 		logger.debug("CalculateBollingerBands Started");
@@ -189,10 +191,116 @@ public class CalculateBollingerBands {
 			System.out.println("insertBBToDB Error in DB action ->"+ex);
 			logger.error("Error in insertBBToDB  -> ", ex);
 		}
+	}	
+	
+	public void calculateBollingerBandsDaily(String stockCode) {
+		ArrayList<DailyStockData> objDailyStockDataList;
+		int counter = 1;
+		float totalPrice = 0;
+		String BBDate = null;
+		double perioddeviation = 0;
+        double BBLower = 0;
+        double BBUper = 0;
+        double periodBandwidth;
+        float simpleMA, tmpvar;
+        float closingPrice = 0;
+        ArrayList<Float> periodData = null;
+        ArrayList<Float> tmpPeriodData;        
+        
+		String bbPeriod = getBBPeriod(stockCode);
+		if(bbPeriod == null) {
+			logger.error("Null Bb Period for stock -> "+stockCode);
+			System.out.println("Null Bb Period for stock -> "+stockCode);
+			return;
+		}
+		String[] tmplist = bbPeriod.split(",");
+		ArrayList<String> bbPeriodArray = new ArrayList<String> (Arrays.asList(tmplist));
+		//ArrayList<String> tmpBBPeriodArray;
+		System.out.println("Creating BB entry for stock -> " + stockCode);
+		objDailyStockDataList = getStockDetailsFromDBForDaily(stockCode);
+		if(objDailyStockDataList.size()>0) {			
+			counter = 1;
+			totalPrice = 0;
+			//tmpBBPeriodArray = (ArrayList<String>) bbPeriodArray.clone();
+			periodData = new ArrayList<Float>();
+			for (DailyStockData objDailyStockData : objDailyStockDataList) {
+				totalPrice = totalPrice + objDailyStockData.closePrice;
+				if(counter==1) {
+					BBDate = objDailyStockData.tradeddate;
+					closingPrice = objDailyStockData.closePrice;
+				}
+				periodData.add(objDailyStockData.closePrice);
+				if(bbPeriodArray.size()==0) {
+					break;
+				}
+				if( bbPeriodArray.contains(counter+"") ) {	
+					bbPeriodArray.remove(counter+"");
+					perioddeviation = 0;
+	                BBLower = 0;
+	                BBUper = 0;
+	                tmpPeriodData = new ArrayList<Float>();
+	                simpleMA = totalPrice/counter;
+	                for(int counter1 = 0; counter1<counter; counter1++) {
+	                	tmpPeriodData.add(periodData.get(counter1)-simpleMA);
+	                	tmpvar = tmpPeriodData.get(counter1) * tmpPeriodData.get(counter1); 
+	                	tmpPeriodData.set(counter1, tmpvar);
+	                	perioddeviation = perioddeviation + tmpPeriodData.get(counter1);
+	                }
+	                perioddeviation = perioddeviation / counter;
+	                perioddeviation = Math.sqrt(perioddeviation);
+	                BBLower = simpleMA - 2 * perioddeviation;
+	                BBUper = simpleMA + 2 * perioddeviation;
+	                periodBandwidth = BBUper - BBLower;
+	                insertBBToDB(stockCode, BBDate, counter, closingPrice, simpleMA, BBUper, BBLower, periodBandwidth);
+				}			
+				counter++;	
+			}
+		} else {
+			System.out.println("Quote size is 0 for stock -> "+stockCode);
+			
+		}
+		System.out.println("Test");
 	}
 	
-	
-	public void calculateBollingerBandsDaily() {
+	public boolean getBBIndicationForStock(String stockCode) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		ArrayList<Float> dailyBandwidth = new ArrayList<Float>();
+		boolean bbContracting = true;
+		float BBcontractingPercentage;
+		String tmpSQL;
+		boolean onedaydeviation = false;
 		
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			statement = connection.createStatement();	
+			tmpSQL = "SELECT first 5 BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' order by tradeddate desc;";
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				dailyBandwidth.add(Float.parseFloat(resultSet.getString(1)));
+			}
+			for(int counter = 0; counter< dailyBandwidth.size()-1; counter++) {
+				BBcontractingPercentage = (dailyBandwidth.get(counter) - dailyBandwidth.get(counter+1))/dailyBandwidth.get(counter+1);
+				if(dailyBandwidth.get(counter) > dailyBandwidth.get(counter+1)){
+					bbContracting = false;
+					break;							
+				} else if(BBcontractingPercentage <= ACCEPTED_PERCENTAGE_DEVIATION) {
+					if(onedaydeviation) {
+						bbContracting = false;
+						break;
+					}
+					onedaydeviation = true;
+				}
+			}
+			return bbContracting;
+		} catch (Exception ex) {
+			System.out.println("Error in DB action");
+			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			return false;
+		}
 	}
 }
