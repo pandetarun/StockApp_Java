@@ -288,7 +288,7 @@ public class CalculateBollingerBands {
 			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();	
-			tmpSQL = "SELECT first 5 BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' order by tradeddate desc;";
+			tmpSQL = "SELECT first 5 BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 order by tradeddate desc;";
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				dailyBandwidth.add(Float.parseFloat(resultSet.getString(1)));

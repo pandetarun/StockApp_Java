@@ -12,7 +12,7 @@ public class GenerateCombinedIndication {
 	String stockName;
 	String bseCode;
 	String nseCode;
-	static Logger logger = Logger.getLogger(CalculateSimpleAndExpoMovingAvg.class);
+	static Logger logger = Logger.getLogger(GenerateCombinedIndication.class);
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -23,26 +23,21 @@ public class GenerateCombinedIndication {
 
 	public void generateCombinedIndicationForStocks() {
 		logger.debug("generateCombinedIndicationForStocks Started");
-		ArrayList<String> stocklist = null;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
-		CalculateOnBalanceVolume objCalculateOnBalanceVolume;
-		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
-		CalculateBollingerBands objCalculateBollingerBands;
 		Date todayDate = new Date();
-		
-		String bbIndicator;
 		ArrayList<FinalSelectedStock> objFinalSelectedStockList = new ArrayList<FinalSelectedStock>();
 		ArrayList<FinalSelectedStock> objFinalSelectedBelowHundredStockList = new ArrayList<FinalSelectedStock>();
 		FinalSelectedStock objFinalSelectedStock = null;
 		FinalSelectedStock objFinalSelectedBelowHunderdStock;
 		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
 			return;
-		
+		System.out.println("********* - Get seleted stocks based on SMA");
 		GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
 		obj.CalculateIndicationfromSMA();
 		SMAIndicatorDetailsList = obj.getIndicationStocks();
 		SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
+		System.out.println("********* - process seleted stocks to send mail");
 		for(int counter = 0; counter<=20; counter++){
 			if(SMAIndicatorDetailsList.size() > counter) {
 				//add selected stock				
@@ -56,6 +51,7 @@ public class GenerateCombinedIndication {
 		//Send top stock in mail
 		sendTopStockInMail(objFinalSelectedStockList, false);
 		
+		System.out.println("********* - process below hundred seleted stocks to send mail");
 		for(int counter = 0; counter<=20; counter++){			
 			if(SMAIndicatorDetailsBelowHundredList.size() > counter) {
 				objFinalSelectedBelowHunderdStock = new FinalSelectedStock();
