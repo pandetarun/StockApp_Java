@@ -30,11 +30,12 @@ public class GenerateCombinedIndication {
 		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
 		CalculateBollingerBands objCalculateBollingerBands;
 		Date todayDate = new Date();
-		int counter = 0;
+		
 		String bbIndicator;
 		ArrayList<FinalSelectedStock> objFinalSelectedStockList = new ArrayList<FinalSelectedStock>();
-		FinalSelectedStock objFinalSelectedStock;
-		
+		ArrayList<FinalSelectedStock> objFinalSelectedBelowHundredStockList = new ArrayList<FinalSelectedStock>();
+		FinalSelectedStock objFinalSelectedStock = null;
+		FinalSelectedStock objFinalSelectedBelowHunderdStock;
 		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
 			return;
 		
@@ -42,29 +43,64 @@ public class GenerateCombinedIndication {
 		obj.CalculateIndicationfromSMA();
 		SMAIndicatorDetailsList = obj.getIndicationStocks();
 		SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
-		for(SMAIndicatorDetails objSMAIndicatorDetails : SMAIndicatorDetailsList) {
-			if(counter >20) break;
-			objFinalSelectedStock = new FinalSelectedStock();
-			
-			objCalculateOnBalanceVolume = new CalculateOnBalanceVolume();
-			objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode);
-			
-			objCalculateBollingerBands = new CalculateBollingerBands();
-			bbIndicator = objCalculateBollingerBands.getBBIndicationForStock(objSMAIndicatorDetails.stockCode);
-			
-			objFinalSelectedStock.stockCode = objSMAIndicatorDetails.stockCode;
-			objFinalSelectedStock.stockPrice = objSMAIndicatorDetails.stockPrice;
-			objFinalSelectedStock.tradeddate = objSMAIndicatorDetails.signalDate;
-			objFinalSelectedStock.percentagePriceChange = objSMAIndicatorDetails.percentagePriceChange;
-			objFinalSelectedStock.PNSMAcrossover = objSMAIndicatorDetails.PNSMAcrossover;
-			objFinalSelectedStock.SMNSMcrossover = objSMAIndicatorDetails.SMNSMcrossover;
-			objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
-			objFinalSelectedStock.BBIndicator = bbIndicator;
-			objFinalSelectedStockList.add(objFinalSelectedStock);
-			counter++;
+		for(int counter = 0; counter<=20; counter++){
+			if(SMAIndicatorDetailsList.size() > counter) {
+				//add selected stock				
+				objFinalSelectedStock = getAlldetails(SMAIndicatorDetailsList.get(counter));
+				objFinalSelectedStockList.add(objFinalSelectedStock);
+				//add Selected stock end
+			} else {
+				break;
+			}
 		}
+		//Send top stock in mail
 		sendTopStockInMail(objFinalSelectedStockList, false);
+		
+		for(int counter = 0; counter<=20; counter++){			
+			if(SMAIndicatorDetailsBelowHundredList.size() > counter) {
+				objFinalSelectedBelowHunderdStock = new FinalSelectedStock();
+				objFinalSelectedBelowHunderdStock.stockCode = SMAIndicatorDetailsBelowHundredList.get(counter).stockCode;
+				if(objFinalSelectedStockList.contains(objFinalSelectedBelowHunderdStock)) {
+					objFinalSelectedBelowHunderdStock = objFinalSelectedStockList.get(objFinalSelectedStockList.indexOf(objFinalSelectedBelowHunderdStock));
+					objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
+				} else {
+					objFinalSelectedBelowHunderdStock = getAlldetails(SMAIndicatorDetailsBelowHundredList.get(counter));						
+					objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
+				}
+			} else {
+				break;
+			}
+		}
+		//Send top below 100 stock in mail
+		sendTopStockInMail(objFinalSelectedBelowHundredStockList, true);
 		logger.debug("generateCombinedIndicationForStocks End");
+	}
+	
+	private FinalSelectedStock getAlldetails (SMAIndicatorDetails objSMAIndicatorDetails) {
+		FinalSelectedStock objFinalSelectedStock = null;
+		CalculateOnBalanceVolume objCalculateOnBalanceVolume;
+		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
+		CalculateBollingerBands objCalculateBollingerBands;
+		String bbIndicator;
+		
+		objFinalSelectedStock = new FinalSelectedStock();
+		//add selcted stock
+		objCalculateOnBalanceVolume = new CalculateOnBalanceVolume();
+		objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode);
+		
+		objCalculateBollingerBands = new CalculateBollingerBands();
+		bbIndicator = objCalculateBollingerBands.getBBIndicationForStock(objSMAIndicatorDetails.stockCode);
+		
+		objFinalSelectedStock.stockCode = objSMAIndicatorDetails.stockCode;
+		objFinalSelectedStock.stockPrice = objSMAIndicatorDetails.stockPrice;
+		objFinalSelectedStock.tradeddate = objSMAIndicatorDetails.signalDate;
+		objFinalSelectedStock.percentagePriceChange = objSMAIndicatorDetails.percentagePriceChange;
+		objFinalSelectedStock.PNSMAcrossover = objSMAIndicatorDetails.PNSMAcrossover;
+		objFinalSelectedStock.SMNSMcrossover = objSMAIndicatorDetails.SMNSMcrossover;
+		objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
+		objFinalSelectedStock.BBIndicator = bbIndicator;
+		
+		return objFinalSelectedStock;
 	}
 	
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd) {
@@ -91,9 +127,9 @@ public class GenerateCombinedIndication {
 		mailBody.append("</table></body></html>");
 		SendSuggestedStockInMail mailSender;
         if(belowHunderd && objFinalSelectedStockList.size() > 0) {
-        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","SMA -> Below 100 Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
+        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Combined -> Below 100 Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
         } else if( objFinalSelectedStockList.size() > 0 ){
-        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","SMA -> Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
+        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Combined -> Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
         }
         logger.debug("sendTopStockInMail end");
 	}
