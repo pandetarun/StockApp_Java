@@ -39,6 +39,11 @@ public class QuoteApplication {
 				OnBalanceVolumeUpdated obj = new OnBalanceVolumeUpdated();
 				obj.OnBalanceVolumeCalculation();
 				logger.debug("Volume Indication End");
+			} else if (args[0].equalsIgnoreCase("combined")) {
+				logger.debug("Combined Indication Started");
+				GenerateCombinedIndication obj = new GenerateCombinedIndication();
+				obj.generateCombinedIndicationForStocks();
+				logger.debug("Combined Indication End");
 			}
 		} else {
 			System.out.println("No Args specified");
