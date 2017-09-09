@@ -49,6 +49,11 @@ public class CreateWatchListYahoo extends SetupBase {
 			logger.debug("startCollectingDailyData Started");
 			setupSelenium(URL);
 			logger.debug("Selenium Setup Completed");
+			try {
+				Thread.sleep(4000);
+			} catch(Exception ex) {
+				System.out.println("Error in waiting for drop down suggestion");
+			}
 			actions = new Actions(driver);
 			//click on sign in
 			ele = driver.findElement(By.id("uh-signedin"));			
@@ -82,29 +87,23 @@ public class CreateWatchListYahoo extends SetupBase {
 			ele = driver.findElement(By.id("login-signin"));
 			ele.click();
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(5000);
 			} catch(Exception ex) {
 				System.out.println("Error in waiting for drop down suggestion");
 			}
 			//click on my portfolio
 			ele = driver.findElement(By.xpath("//*[@id='Nav-0-DesktopNav']/div/div[3]/div/div[1]/ul/li[9]/a"));
-			
-			//actions.clickAndHold(ele).perform();
-			//ele = driver.findElement(By.xpath("//*[@id='uh']/header/ul[2]/li[10]/ul/li[3]/a"));
 			ele.click();
+			//actions.clickAndHold(ele).perform();
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(4000);
 			} catch(Exception ex) {
 				System.out.println("Error in waiting for drop down suggestion");
 			}
-			//click on close for help popup
-			//ele = driver.findElement(By.xpath("//*[@id='feature-tour']/div/div/button"));
-			//ele.click();
-			//click on create watchlist
 			ele = driver.findElement(By.xpath("//*[@id='main']/section/header/div[1]/div/button"));
 			ele.click();
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 			} catch(Exception ex) {
 				System.out.println("Error in waiting for drop down suggestion");
 			}
@@ -132,10 +131,13 @@ public class CreateWatchListYahoo extends SetupBase {
 			ele = driver.findElement(By.xpath("//*[@id='__dialog']/section/form/div[2]/button[1]"));
 			ele.click();
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(4000);
 			} catch(Exception ex) {
 				System.out.println("Error in waiting for drop down suggestion");
 			}
+			//Close help popup
+			ele = driver.findElement(By.xpath("//*[@id='feature-tour']/div/div/button"));
+			ele.click();			
 		} catch (Exception ex) {
 			System.out.println("Error in creatWatchList "+ex);
 			logger.error("Error in creatWatchList - > "+ex);
@@ -146,7 +148,7 @@ public class CreateWatchListYahoo extends SetupBase {
 		
 		WebElement ele = null;	
 		//Click on add symbol button
-		ele = driver.findElement(By.xpath("//*[@id='main']/section/section[2]/p/button"));
+		ele = driver.findElement(By.xpath("//*[@id='main']/section/div/button[1]"));
 		ele.click();
 		try {
 			Thread.sleep(1000);
@@ -161,13 +163,33 @@ public class CreateWatchListYahoo extends SetupBase {
 		} catch(Exception ex) {
 			System.out.println("Error in waiting for drop down suggestion");
 		}
-		//Click on equity code
-		ele = driver.findElement(By.id("react-autowhatever-1--item-0"));
-		ele.click();
-		//Click main to close quote dialog
-		ele = driver.findElement(By.id("main"));
-		ele.click();
+		//Find equity code
+		for(int counter = 1; counter <= 40; counter++) {
+			ele = driver.findElement(By.xpath("//*[@id='react-autowhatever-1']/ul/li[" + counter + "]/div/p[2]"));
+			if(ele.getText().contains("NSE")) {
+				//Click on equity code
+				ele = driver.findElement(By.xpath("//*[@id='react-autowhatever-1']/ul/li[" + counter + "]"));
+				ele.click();
+				break;
+			}
+		}		
 		
+		//Click main to close quote dialog
+//		ele = driver.findElement(By.id("main"));
+//		ele.click();
+		try {
+			Thread.sleep(2000);
+		} catch(Exception ex) {
+			System.out.println("Error in waiting for drop down suggestion");
+		}
+		//close popuup
+		ele = driver.findElement(By.xpath("//*[@id='__dialog']/section/button"));
+		ele.click();
+		try {
+			Thread.sleep(1000);
+		} catch(Exception ex) {
+			System.out.println("Error in waiting for drop down suggestion");
+		}
 		
 	}
 }
