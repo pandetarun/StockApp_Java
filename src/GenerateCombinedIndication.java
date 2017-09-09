@@ -51,7 +51,7 @@ public class GenerateCombinedIndication {
 		}
 		//Send top stock in mail
 		sendTopStockInMail(objFinalSelectedStockList, false);
-		
+		CreateWatchListForTopStock(objFinalSelectedStockList, false);
 		System.out.println("********* - process below hundred seleted stocks to send mail");
 		for(int counter = 0; counter<=20; counter++){			
 			if(SMAIndicatorDetailsBelowHundredList.size() > counter) {
@@ -70,6 +70,7 @@ public class GenerateCombinedIndication {
 		}
 		//Send top below 100 stock in mail
 		sendTopStockInMail(objFinalSelectedBelowHundredStockList, true);
+		CreateWatchListForTopStock(objFinalSelectedBelowHundredStockList, true);
 		logger.debug("generateCombinedIndicationForStocks End");
 	}
 	
@@ -103,20 +104,10 @@ public class GenerateCombinedIndication {
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd) {
 		logger.debug("sendTopStockInMail Started");
 		StringBuilder mailBody = new StringBuilder();
-		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MMM");
-		CreateWatchListYahoo objCreateWatchListYahoo = new CreateWatchListYahoo();
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>Stock Price</th><th>9 to 50 SM Cross</th><th>Price crossed 20 SMA</th><th>% Price Change</th><th>% Volume Increase</th><th>BB Indication</th>"
-				+ "<th>RSI Indication</th><th>MACD Indication</th><th>Stochastic Oscillator</th><th>Accumulation/ Distribution Line</th></tr>");	
-			
+				+ "<th>RSI Indication</th><th>MACD Indication</th><th>Stochastic Oscillator</th><th>Accumulation/ Distribution Line</th></tr>");			
 		for (int counter = 0; counter <(objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()); counter++) {
-			if(counter == 0) {
-				if(!belowHunderd){
-					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " All", belowHunderd);
-				} else {
-					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " Below 100", belowHunderd);
-				}
-			}
 			mailBody.append("<tr><td>" + (counter+1) + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).tradeddate + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockCode + "</td>");
@@ -129,16 +120,32 @@ public class GenerateCombinedIndication {
 			mailBody.append("<td>" + "</td>");
 			mailBody.append("<td>" +  "</td>");
 			mailBody.append("<td>" +  "</td></tr>");
-			objCreateWatchListYahoo.addStocksToWatchList(objFinalSelectedStockList.get(counter).stockCode);
 		}
 		mailBody.append("</table></body></html>");
-		SendSuggestedStockInMail mailSender;
         if(belowHunderd && objFinalSelectedStockList.size() > 0) {
-        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Combined -> Below 100 Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
+        	new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Combined -> Below 100 Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
         } else if( objFinalSelectedStockList.size() > 0 ){
-        	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Combined -> Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
+        	new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Combined -> Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
         }
-        objCreateWatchListYahoo.stopSelenium();
         logger.debug("sendTopStockInMail end");
+	}
+	
+	private void CreateWatchListForTopStock(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd) {
+		logger.debug("CreateWatchListForTopStock Started");
+		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MMM");
+		CreateWatchListYahoo objCreateWatchListYahoo = new CreateWatchListYahoo();
+		
+		for (int counter = (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()-1); counter > 0; counter++) {
+			if(counter == objFinalSelectedStockList.size()-1 || counter == 20) {
+				if(!belowHunderd){
+					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " All", belowHunderd);
+				} else {
+					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " Below 100", belowHunderd);
+				}
+			}
+			objCreateWatchListYahoo.addStocksToWatchList(objFinalSelectedStockList.get(counter).stockCode);
+		}
+        objCreateWatchListYahoo.stopSelenium();
+        logger.debug("CreateWatchListForTopStock end");
 	}
 }
