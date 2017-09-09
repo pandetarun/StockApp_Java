@@ -1,6 +1,5 @@
 import java.sql.Connection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -104,7 +103,7 @@ public class GenerateCombinedIndication {
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd) {
 		logger.debug("sendTopStockInMail Started");
 		StringBuilder mailBody = new StringBuilder();
-		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MMM");
 		CreateWatchListYahoo objCreateWatchListYahoo = new CreateWatchListYahoo();
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>Stock Price</th><th>9 to 50 SM Cross</th><th>Price crossed 20 SMA</th><th>% Price Change</th><th>% Volume Increase</th><th>BB Indication</th>"
@@ -113,9 +112,9 @@ public class GenerateCombinedIndication {
 		for (int counter = 0; counter <(objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()); counter++) {
 			if(counter == 0) {
 				if(!belowHunderd){
-					objCreateWatchListYahoo.creatWatchList(dateFormat.format(objFinalSelectedStockList.get(0).tradeddate) + " All", belowHunderd);
+					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " All", belowHunderd);
 				} else {
-					objCreateWatchListYahoo.creatWatchList(dateFormat.format(objFinalSelectedStockList.get(0).tradeddate) + " Below 100", belowHunderd);
+					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " Below 100", belowHunderd);
 				}
 			}
 			mailBody.append("<tr><td>" + (counter+1) + "</td>");
@@ -139,6 +138,7 @@ public class GenerateCombinedIndication {
         } else if( objFinalSelectedStockList.size() > 0 ){
         	mailSender = new SendSuggestedStockInMail("tarunstockcomm@gmail.com","Combined -> Stocklist on "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
         }
+        objCreateWatchListYahoo.stopSelenium();
         logger.debug("sendTopStockInMail end");
 	}
 }

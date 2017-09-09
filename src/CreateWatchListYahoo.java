@@ -156,7 +156,7 @@ public class CreateWatchListYahoo extends SetupBase {
 		}
 		//Provide stock code
 		ele = driver.findElement(By.xpath("//*[@id='__dialog']/section/div/form/div/div[1]/input"));
-		ele.sendKeys(stockCode);
+		ele.sendKeys(stockCode+".NS");
 		try {
 			Thread.sleep(2000);
 		} catch(Exception ex) {
@@ -189,6 +189,10 @@ public class CreateWatchListYahoo extends SetupBase {
 		} catch(Exception ex) {
 			System.out.println("Error in waiting for drop down suggestion");
 		}
+		
+	}
+	
+	public void EndWatchlistCreation() {
 		
 	}
 }
