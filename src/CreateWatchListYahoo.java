@@ -1,5 +1,6 @@
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -22,19 +23,19 @@ public class CreateWatchListYahoo extends SetupBase {
 		CreateWatchListYahoo obj = new CreateWatchListYahoo();
 		
 		
-		obj.startCreatingWatchList(true);
+		//obj.startCreatingWatchList(true, new LocalDate(""));
 		dte = new Date();
 		System.out.println("CreateWatchListYahoo End at -> " + dte.toString());
 	}
 	
-	public void startCreatingWatchList(boolean belowHunderd) {
+	public void startCreatingWatchList(boolean belowHunderd, LocalDate tradedDate) {
 		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		String portfolioName;
 		
 		if(!belowHunderd){
-			portfolioName = dateFormat.format(new Date()) + " All";
+			portfolioName = dateFormat.format(tradedDate) + " All";
 		} else {
-			portfolioName = dateFormat.format(new Date()) + " Below 100";
+			portfolioName = dateFormat.format(tradedDate) + " Below 100";
 		}
 		creatWatchList(portfolioName, belowHunderd);
 		addStocksToWatchList("GNA");
@@ -42,9 +43,7 @@ public class CreateWatchListYahoo extends SetupBase {
 	}
 	
 	public void creatWatchList(String watchListName, boolean belowHunderd) {
-		WebElement ele = null;		
-		Actions actions = null;
-		String portfolioName;
+		WebElement ele = null;	
 		try{
 			logger.debug("startCollectingDailyData Started");
 			setupSelenium(URL);
@@ -54,7 +53,7 @@ public class CreateWatchListYahoo extends SetupBase {
 			} catch(Exception ex) {
 				System.out.println("Error in waiting for drop down suggestion");
 			}
-			actions = new Actions(driver);
+			//actions = new Actions(driver);
 			//click on sign in
 			ele = driver.findElement(By.id("uh-signedin"));			
 			ele.click();

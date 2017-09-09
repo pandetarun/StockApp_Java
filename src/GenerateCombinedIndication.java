@@ -1,4 +1,6 @@
 import java.sql.Connection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -102,11 +104,20 @@ public class GenerateCombinedIndication {
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd) {
 		logger.debug("sendTopStockInMail Started");
 		StringBuilder mailBody = new StringBuilder();
+		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		CreateWatchListYahoo objCreateWatchListYahoo = new CreateWatchListYahoo();
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>Stock Price</th><th>9 to 50 SM Cross</th><th>Price crossed 20 SMA</th><th>% Price Change</th><th>% Volume Increase</th><th>BB Indication</th>"
-				+ "<th>RSI Indication</th><th>MACD Indication</th><th>Stochastic Oscillator</th><th>Accumulation/ Distribution Line</th></tr>");
-		
+				+ "<th>RSI Indication</th><th>MACD Indication</th><th>Stochastic Oscillator</th><th>Accumulation/ Distribution Line</th></tr>");	
+			
 		for (int counter = 0; counter <(objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()); counter++) {
+			if(counter == 0) {
+				if(!belowHunderd){
+					objCreateWatchListYahoo.creatWatchList(dateFormat.format(objFinalSelectedStockList.get(0).tradeddate) + " All", belowHunderd);
+				} else {
+					objCreateWatchListYahoo.creatWatchList(dateFormat.format(objFinalSelectedStockList.get(0).tradeddate) + " Below 100", belowHunderd);
+				}
+			}
 			mailBody.append("<tr><td>" + (counter+1) + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).tradeddate + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockCode + "</td>");
@@ -119,6 +130,7 @@ public class GenerateCombinedIndication {
 			mailBody.append("<td>" + "</td>");
 			mailBody.append("<td>" +  "</td>");
 			mailBody.append("<td>" +  "</td></tr>");
+			objCreateWatchListYahoo.addStocksToWatchList(objFinalSelectedStockList.get(counter).stockCode);
 		}
 		mailBody.append("</table></body></html>");
 		SendSuggestedStockInMail mailSender;
