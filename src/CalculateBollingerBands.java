@@ -19,13 +19,13 @@ public class CalculateBollingerBands {
 		logger.debug("CalculateBollingerBands Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateBollingerBands obj = new CalculateBollingerBands();
-		obj.calculateBollingerBandsBulk();		
+		obj.calculateBollingerBands();		
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateBollingerBands End");
 	}
 	
-	public void calculateBollingerBandsBulk() {
+	public void calculateBollingerBands() {
 		ArrayList<String> stockList = null;
 		String stockName;
 		String bseCode;
@@ -215,7 +215,7 @@ public class CalculateBollingerBands {
         ArrayList<Float> tmpPeriodData;     
         Date date = null;
          
-		//date = new Date(System.currentTimeMillis()-1*24*60*60*1000);
+		date = new Date(System.currentTimeMillis()-5*24*60*60*1000);
 		
 		String bbPeriod = getBBPeriod(stockCode);
 		if(bbPeriod == null) {
