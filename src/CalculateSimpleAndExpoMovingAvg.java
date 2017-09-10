@@ -26,8 +26,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 		ArrayList<String> stockList = null;
 		Date todayDate = new Date();
 		
-//		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
-//			return;
+		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+			return;
 		stockList = StockUtils.getStockListFromDB();
 		String stockName;
 		String bseCode;
@@ -98,7 +98,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 							period, stockDetails.closePrice.get(counter1).floatValue(), expMovingAvg);
 				}
 				period++;
-				//Not going more than 200 days back
 				if (period > 200) {
 					break;
 				}
@@ -114,8 +113,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 		float sumOfClosingPrices = 0;
 		float expMovingAvg = 0;
 		Date date = null;
-         
-		//date = new Date(System.currentTimeMillis()-4*24*60*60*1000);
 		stockDetails = getStockDetailsFromDBForDaily(stockCode, date);
 
 		for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
@@ -173,7 +170,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 		}
 	}
 
-	private SMAData getStockDetailsFromDBForDaily(String stockCode, Date SMDate	) {
+	private SMAData getStockDetailsFromDBForDaily(String stockCode, Date SMDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tradedDate;
