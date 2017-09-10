@@ -39,6 +39,11 @@ public class QuoteApplication {
 				OnBalanceVolumeUpdated obj = new OnBalanceVolumeUpdated();
 				obj.OnBalanceVolumeCalculation();
 				logger.debug("Volume Indication End");
+			} else if (args[0].equalsIgnoreCase("calculateBB")) {
+				logger.debug("calculateBB Started");
+				CalculateBollingerBands obj = new CalculateBollingerBands();
+				//obj.generateCombinedIndicationForStocks();
+				logger.debug("calculateBB End");
 			} else if (args[0].equalsIgnoreCase("combined")) {
 				logger.debug("Combined Indication Started");
 				GenerateCombinedIndication obj = new GenerateCombinedIndication();
