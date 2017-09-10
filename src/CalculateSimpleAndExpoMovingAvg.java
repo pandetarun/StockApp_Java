@@ -1,6 +1,8 @@
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -110,7 +112,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 		int period = 1;
 		float sumOfClosingPrices = 0;
 		float expMovingAvg = 0;
-		stockDetails = getStockDetailsFromDBForDaily(stockCode);
+		Date date = null;
+		stockDetails = getStockDetailsFromDBForDaily(stockCode, date);
 
 		for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
 			sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter);
@@ -167,12 +170,15 @@ public class CalculateSimpleAndExpoMovingAvg {
 		}
 	}
 
-	private SMAData getStockDetailsFromDBForDaily(String stockCode) {
+	private SMAData getStockDetailsFromDBForDaily(String stockCode, Date SMDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tradedDate;
 		Float closePrice;
 		SMAData smaDataObj = null;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		
 		try {
 			if (connection != null) {
 				connection.close();
@@ -184,9 +190,15 @@ public class CalculateSimpleAndExpoMovingAvg {
 			smaDataObj.tradeddate = new ArrayList<String>();
 			statement = connection.createStatement();
 			smaDataObj.stockName = stockCode;
+			if(SMDate!=null) {
+				tmpSQL = "SELECT first 200 tradeddate, closeprice FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' and tradeddate<='" + dateFormat.format(SMDate) +"' order by tradeddate desc;";
+			} else {
+				tmpSQL = "SELECT first 200 tradeddate, closeprice FROM DAILYSTOCKDATA where stockname='"
+							+ stockCode + "' order by tradeddate desc;";
+			}
 			resultSet = statement
-					.executeQuery("SELECT first 200 tradeddate, closeprice FROM DAILYSTOCKDATA where stockname='"
-							+ stockCode + "' order by tradeddate desc;");
+					.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				tradedDate = resultSet.getString(1);
 				closePrice = Float.parseFloat(resultSet.getString(2));
