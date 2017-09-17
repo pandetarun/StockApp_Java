@@ -135,7 +135,7 @@ public class GenerateCombinedIndication {
 		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MMM");
 		CreateWatchListYahoo objCreateWatchListYahoo = new CreateWatchListYahoo();
 		
-		for (int counter = (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()-1); counter > 0; counter++) {
+		for (int counter = (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()); counter > 0; counter--) {
 			if(counter == objFinalSelectedStockList.size()-1 || counter == 20) {
 				if(!belowHunderd){
 					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " All", belowHunderd);

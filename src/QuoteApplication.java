@@ -49,6 +49,11 @@ public class QuoteApplication {
 				GenerateCombinedIndication obj = new GenerateCombinedIndication();
 				obj.generateCombinedIndicationForStocks();
 				logger.debug("Combined Indication End");
+			}  else if (args[0].equalsIgnoreCase("calculateBB")) {
+				logger.debug("calculateBB Started");
+				CalculateBollingerBands obj = new CalculateBollingerBands();
+				obj.calculateBollingerBands();
+				logger.debug("calculateBB End");
 			}
 		} else {
 			System.out.println("No Args specified");
