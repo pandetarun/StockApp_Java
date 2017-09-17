@@ -30,8 +30,8 @@ public class GenerateIndicationfromMovingAverage {
 		logger.debug("CalculateIndicationfromSMA start");
 		ArrayList<String> stocklist = null;
 		Date todayDate = new Date();
-		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
-			return;
+//		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+//			return;
 		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = StockUtils.getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
@@ -155,6 +155,16 @@ public class GenerateIndicationfromMovingAverage {
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 	}
 
@@ -206,6 +216,16 @@ public class GenerateIndicationfromMovingAverage {
 		} catch (Exception ex) {
 			System.out.println("Error in getting preferred period from DB" + ex);
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 		return prefPeriod;
 	}
@@ -233,6 +253,16 @@ public class GenerateIndicationfromMovingAverage {
 		} catch (Exception ex) {
 			System.out.println("Error in getting SMA values for period = " + period + " error = " + ex);
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 		return SMAData;
 	}
@@ -265,7 +295,18 @@ public class GenerateIndicationfromMovingAverage {
 			connection = null;
 		} catch (Exception ex) {
 			System.out.println("Error in getting price = " + ex);
+			
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 		return priceData;
 	}
