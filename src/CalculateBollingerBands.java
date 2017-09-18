@@ -1,3 +1,4 @@
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -136,11 +137,23 @@ public class CalculateBollingerBands {
 			while (resultSet.next()) {
 				bbPeriod = resultSet.getString(1);
 			}
+			statement = null;
 			return bbPeriod;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			logger.error("Error in getBBPeriod  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				return null;
+			}
 		}
 	}
 	
@@ -176,9 +189,20 @@ public class CalculateBollingerBands {
 			}
 			return objDailyStockDataList;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action"+ex);
+				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
+				return null;
+			}
 		}
 	}
 	
@@ -233,38 +257,59 @@ public class CalculateBollingerBands {
 			totalPrice = 0;
 			//tmpBBPeriodArray = (ArrayList<String>) bbPeriodArray.clone();
 			periodData = new ArrayList<Float>();
-			for (DailyStockData objDailyStockData : objDailyStockDataList) {
-				totalPrice = totalPrice + objDailyStockData.closePrice;
-				if(counter==1) {
-					BBDate = objDailyStockData.tradeddate;
-					closingPrice = objDailyStockData.closePrice;
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
 				}
-				periodData.add(objDailyStockData.closePrice);
-				if(bbPeriodArray.size()==0) {
-					break;
+				connection = StockUtils.connectToDB();
+				for (DailyStockData objDailyStockData : objDailyStockDataList) {
+					totalPrice = totalPrice + objDailyStockData.closePrice;
+					if(counter==1) {
+						BBDate = objDailyStockData.tradeddate;
+						closingPrice = objDailyStockData.closePrice;
+					}
+					periodData.add(objDailyStockData.closePrice);
+					if(bbPeriodArray.size()==0) {
+						break;
+					}
+					if( bbPeriodArray.contains(counter+"") ) {	
+						bbPeriodArray.remove(counter+"");
+						perioddeviation = 0;
+		                BBLower = 0;
+		                BBUper = 0;
+		                tmpPeriodData = new ArrayList<Float>();
+		                simpleMA = totalPrice/counter;
+		                for(int counter1 = 0; counter1<counter; counter1++) {
+		                	tmpPeriodData.add(periodData.get(counter1)-simpleMA);
+		                	tmpvar = tmpPeriodData.get(counter1) * tmpPeriodData.get(counter1); 
+		                	tmpPeriodData.set(counter1, tmpvar);
+		                	perioddeviation = perioddeviation + tmpPeriodData.get(counter1);
+		                }
+		                perioddeviation = perioddeviation / counter;
+		                perioddeviation = Math.sqrt(perioddeviation);
+		                BBLower = simpleMA - 2 * perioddeviation;
+		                BBUper = simpleMA + 2 * perioddeviation;
+		                periodBandwidth = BBUper - BBLower;
+		                insertBBToDB(stockCode, BBDate, counter, closingPrice, simpleMA, BBUper, BBLower, periodBandwidth);
+					}			
+					counter++;	
 				}
-				if( bbPeriodArray.contains(counter+"") ) {	
-					bbPeriodArray.remove(counter+"");
-					perioddeviation = 0;
-	                BBLower = 0;
-	                BBUper = 0;
-	                tmpPeriodData = new ArrayList<Float>();
-	                simpleMA = totalPrice/counter;
-	                for(int counter1 = 0; counter1<counter; counter1++) {
-	                	tmpPeriodData.add(periodData.get(counter1)-simpleMA);
-	                	tmpvar = tmpPeriodData.get(counter1) * tmpPeriodData.get(counter1); 
-	                	tmpPeriodData.set(counter1, tmpvar);
-	                	perioddeviation = perioddeviation + tmpPeriodData.get(counter1);
-	                }
-	                perioddeviation = perioddeviation / counter;
-	                perioddeviation = Math.sqrt(perioddeviation);
-	                BBLower = simpleMA - 2 * perioddeviation;
-	                BBUper = simpleMA + 2 * perioddeviation;
-	                periodBandwidth = BBUper - BBLower;
-	                insertBBToDB(stockCode, BBDate, counter, closingPrice, simpleMA, BBUper, BBLower, periodBandwidth);
-				}			
-				counter++;	
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getBBIndicationForStock  -> ", ex);
+			} finally {
+				try {
+					if (connection != null) {
+						connection.close();
+						connection = null;
+					} 
+				} catch (Exception ex) {
+					System.out.println("Error in DB action");
+					logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				}
 			}
+			
 		} else {
 			System.out.println("Quote size is 0 for stock -> "+stockCode);
 			
@@ -309,11 +354,23 @@ public class CalculateBollingerBands {
 				} else {
 				}
 			}
+			statement = null;
 			return bbContracting;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
 			return "expanding";
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				return null;
+			}
 		}
 	}
 }
