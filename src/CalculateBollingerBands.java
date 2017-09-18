@@ -189,9 +189,20 @@ public class CalculateBollingerBands {
 			}
 			return objDailyStockDataList;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action"+ex);
+				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
+				return null;
+			}
 		}
 	}
 	
