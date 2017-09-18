@@ -271,7 +271,7 @@ public class CalculateBollingerBands {
 		}
 		System.out.println("Test");
 	}
-	
+	 	
 	public String getBBIndicationForStock(String stockCode) {
 		ResultSet resultSet = null;
 		Statement statement = null;

@@ -163,6 +163,16 @@ public class CalculateOnBalanceVolume {
 			} catch(Exception ex1) { }
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 	}
 
@@ -210,6 +220,16 @@ public class CalculateOnBalanceVolume {
 			} catch(Exception ex1) { }
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 	}
 	
@@ -239,6 +259,16 @@ public class CalculateOnBalanceVolume {
 			System.out.println("Error in DB action");
 			logger.error("Error in getStockListFromDB  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 	}
 	
@@ -286,6 +316,16 @@ public class CalculateOnBalanceVolume {
 			System.out.println("Error in DB action");
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if(connection != null) {
+					connection.close();
+					connection = null;
+				}
+			}catch (Exception ex) {
+				System.out.println("Error in closing connection in finally = " + ex);				
+				return null;
+			}
 		}
 	}
 	
