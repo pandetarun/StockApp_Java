@@ -44,35 +44,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 		}
 	}
 
-	private ArrayList<String> getStockListFromDB() {
-
-		ResultSet resultSet = null;
-		Statement statement = null;
-		String stockNSECode;
-		ArrayList<String> stockList = null;
-
-		try {
-			stockList = new ArrayList<String>();
-			connection = StockUtils.connectToDB();
-			statement = connection.createStatement();
-
-			resultSet = statement.executeQuery("SELECT NSECODE FROM STOCKDETAILS;");
-			while (resultSet.next()) {
-				stockNSECode = resultSet.getString(1);
-				stockList.add(stockNSECode);
-				// System.out.println("StockNme - " + stockNSECode);
-			}
-			resultSet.close();
-			connection.close();
-			connection = null;
-			return stockList;
-		} catch (Exception ex) {
-			System.out.println("Error in DB action");
-			logger.error("Error in getStockListFromDB  -> ", ex);
-			return null;
-		}
-	}
-
 	private void calculateSimpleMovingAverage(String stockCode) {
 		SMAData stockDetails = null;
 		float simpleMovingAverage = 0;
@@ -162,11 +133,23 @@ public class CalculateSimpleAndExpoMovingAvg {
 				smaDataObj.closePrice.add(closePrice);
 				smaDataObj.tradeddate.add(tradedDate);
 			}
+			statement = null;
 			return smaDataObj;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				return null;
+			}
 		}
 	}
 
@@ -205,11 +188,23 @@ public class CalculateSimpleAndExpoMovingAvg {
 				smaDataObj.closePrice.add(closePrice);
 				smaDataObj.tradeddate.add(tradedDate);
 			}
+			statement = null;
 			return smaDataObj;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				return null;
+			}
 		}
 	}
 
