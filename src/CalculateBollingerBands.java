@@ -136,11 +136,23 @@ public class CalculateBollingerBands {
 			while (resultSet.next()) {
 				bbPeriod = resultSet.getString(1);
 			}
+			statement = null;
 			return bbPeriod;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			logger.error("Error in getBBPeriod  -> ", ex);
 			return null;
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				return null;
+			}
 		}
 	}
 	
@@ -309,11 +321,23 @@ public class CalculateBollingerBands {
 				} else {
 				}
 			}
+			statement = null;
 			return bbContracting;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
 			return "expanding";
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				return null;
+			}
 		}
 	}
 }
