@@ -41,6 +41,7 @@ public class CalculateRSIIndicator {
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
+			System.out.println("Calculating RSI for stock - >"+nseCode);
 			//calculate RSI on bulk
 			calculateRSIForStockInBulk(nseCode);
 			//calculate average on daily basis
@@ -90,6 +91,7 @@ public class CalculateRSIIndicator {
 						stockRSI = 100 - (100/(1+stockRS));
 					}
 					//Call method to store RS and RSI with period in DB
+					System.out.println("Inserting RSI value in DB");
 					storeRSIinDB(stockCode, stockDetails.tradeddate.get(counter), stockRS, stockRSI, counter, avgGain, avgLoss);
 				}
 			}
