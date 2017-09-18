@@ -230,14 +230,14 @@ public class CalculateRSIIndicator {
 		String tmpsql;
 		try {
 			statement = connection.createStatement();
-			tmpsql = "INSERT INTO DAILYSNEMOVINGAVERAGES (STOCKNAME, TRADEDDATE, PERIOD, STOCKRS, STOCKRSI, AVG_GAIN, AVG_LOSS) VALUES('"
+			tmpsql = "INSERT INTO DAILY_RELATIVE_STRENGTH_INDEX (STOCKNAME, TRADEDDATE, PERIOD, STOCKRS, STOCKRSI, AVG_GAIN, AVG_LOSS) VALUES('"
 					+ stockName + "','" + tradedDate + "'," + period + "," + RS + "," + RSI + "," + avgGain + "," + avgLoss + ");";
 			statement.executeUpdate(tmpsql);
 			statement.close();
 		} catch (Exception ex) {
-			System.out.println("storeMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
+			System.out.println("storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
-			logger.error("Error in storeMovingAverageinDB  ->  storeMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
+			logger.error("Error in storeRSIinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period, ex);
 		}
 	}
