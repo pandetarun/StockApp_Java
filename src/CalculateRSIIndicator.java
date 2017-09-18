@@ -16,13 +16,13 @@ public class CalculateRSIIndicator {
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
-		logger.debug("CalculateSimpleAndExpoMovingAvg Started");
+		logger.debug("CalculateRSIIndicator Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateRSIIndicator obj = new CalculateRSIIndicator();
 		obj.CalculateRSIForAllStocks();
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
-		logger.debug("CalculateSimpleAndExpoMovingAvg End");
+		logger.debug("CalculateRSIIndicator End");
 	}
 	
 	public void CalculateRSIForAllStocks() {
