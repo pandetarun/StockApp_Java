@@ -10,6 +10,7 @@ public class FinalSelectedStock {
 	boolean SMNSMcrossover = false;
 	float percentageChangeInVolumeInLastDay;
 	String BBIndicator;
+	float rsiValue;
 	
 	@Override
 	public int hashCode() {
