@@ -117,26 +117,46 @@ public class CalculateRSIIndicator {
 		float priceDifference, avgGain = 0, avgLoss = 0, stockRS = 0, stockRSI = 0;
 		stockDetails = getStockDetailsFromDBForDaily(stockCode, targetDate);
 
-		if(stockDetails!=null) {
-			priceDifference = stockDetails.closePrice.get(0) - stockDetails.closePrice.get(1); 
-			if(priceDifference > 0) {
-				avgGain = ((stockDetails.previousDayAvgGain * (RSI_PERIOD-1)) + priceDifference) / RSI_PERIOD;
-				avgLoss = (stockDetails.previousDayAvgLoss * (RSI_PERIOD-1)) / RSI_PERIOD;
-			} else if(priceDifference < 0) {
-				avgLoss = ((stockDetails.previousDayAvgLoss * (RSI_PERIOD-1)) + (priceDifference * -1)) / RSI_PERIOD;
-				avgGain = (stockDetails.previousDayAvgGain * (RSI_PERIOD-1)) / RSI_PERIOD;
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			if(stockDetails!=null) {
+				priceDifference = stockDetails.closePrice.get(0) - stockDetails.closePrice.get(1); 
+				if(priceDifference > 0) {
+					avgGain = ((stockDetails.previousDayAvgGain * (RSI_PERIOD-1)) + priceDifference) / RSI_PERIOD;
+					avgLoss = (stockDetails.previousDayAvgLoss * (RSI_PERIOD-1)) / RSI_PERIOD;
+				} else if(priceDifference < 0) {
+					avgLoss = ((stockDetails.previousDayAvgLoss * (RSI_PERIOD-1)) + (priceDifference * -1)) / RSI_PERIOD;
+					avgGain = (stockDetails.previousDayAvgGain * (RSI_PERIOD-1)) / RSI_PERIOD;
+				}
+			}
+			
+			stockRS = avgGain / avgLoss;
+			if( avgLoss == 0 ) {
+				stockRSI = 100;
+			} else {
+				stockRSI = 100 - (100/(1+stockRS));
+			}
+			//Call method to store RS and RSI with period in DB
+			System.out.println("Inserting RSI value in DB");
+			storeRSIinDB(stockCode, stockDetails.tradeddate.get(0), stockRS, stockRSI, RSI_PERIOD, avgGain, avgLoss);
+		} catch (Exception ex) {
+			System.out.println("Error in DB action");
+			logger.error("Error in getBBIndicationForStock  -> ", ex);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			}
 		}
-		
-		stockRS = avgGain / avgLoss;
-		if( avgLoss == 0 ) {
-			stockRSI = 100;
-		} else {
-			stockRSI = 100 - (100/(1+stockRS));
-		}
-		//Call method to store RS and RSI with period in DB
-		System.out.println("Inserting RSI value in DB");
-		storeRSIinDB(stockCode, stockDetails.tradeddate.get(0), stockRS, stockRSI, RSI_PERIOD, avgGain, avgLoss);		
 	}
 	
 	private RSIData getStockDetailsFromDBForBulk(String stockCode) {
