@@ -3,6 +3,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -272,6 +273,45 @@ public class CalculateRSIIndicator {
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeRSIinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period, ex);
+		}
+	}
+	
+	public float getRSIValue(String stockCode, LocalDate objDate) {
+		Statement statement = null;
+		ResultSet resultSet = null;
+		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		String tmpSQL;
+		float stockRSI = 0;
+		
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			tmpSQL = "SELECT STOCKRSI FROM DAILY_RELATIVE_STRENGTH_INDEX where stockname='"	+ stockCode + "' and tradeddate='" + dateFormat.format(objDate) +"' and period =" + RSI_PERIOD + ";";
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				stockRSI = Float.parseFloat(resultSet.getString(1));
+			}			
+			statement.close();
+			statement = null;
+			return stockRSI;
+		} catch (Exception ex) {
+			System.out.println("getRSIValue Error in DB action");
+			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
+			return 0;
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getRSIValue Error in DB action");
+				logger.error("Error in getRSIValue  -> ", ex);
+			}
 		}
 	}
 	

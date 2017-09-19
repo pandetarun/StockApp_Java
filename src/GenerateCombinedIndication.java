@@ -79,7 +79,10 @@ public class GenerateCombinedIndication {
 		CalculateOnBalanceVolume objCalculateOnBalanceVolume;
 		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
 		CalculateBollingerBands objCalculateBollingerBands;
+		CalculateRSIIndicator objCalculateRSIIndicator;
+		
 		String bbIndicator;
+		float rsiIndication;
 		
 		objFinalSelectedStock = new FinalSelectedStock();
 		//add selcted stock
@@ -89,6 +92,9 @@ public class GenerateCombinedIndication {
 		objCalculateBollingerBands = new CalculateBollingerBands();
 		bbIndicator = objCalculateBollingerBands.getBBIndicationForStock(objSMAIndicatorDetails.stockCode);
 		
+		objCalculateRSIIndicator = new CalculateRSIIndicator();
+		rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
+		
 		objFinalSelectedStock.stockCode = objSMAIndicatorDetails.stockCode;
 		objFinalSelectedStock.stockPrice = objSMAIndicatorDetails.stockPrice;
 		objFinalSelectedStock.tradeddate = objSMAIndicatorDetails.signalDate;
@@ -97,7 +103,7 @@ public class GenerateCombinedIndication {
 		objFinalSelectedStock.SMNSMcrossover = objSMAIndicatorDetails.SMNSMcrossover;
 		objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
 		objFinalSelectedStock.BBIndicator = bbIndicator;
-		
+		objFinalSelectedStock.rsiValue = rsiIndication;
 		return objFinalSelectedStock;
 	}
 	
@@ -117,7 +123,7 @@ public class GenerateCombinedIndication {
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).percentagePriceChange + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).percentageChangeInVolumeInLastDay + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).BBIndicator + "</td>");
-			mailBody.append("<td>" + "</td>");
+			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).rsiValue + "</td>");
 			mailBody.append("<td>" +  "</td>");
 			mailBody.append("<td>" +  "</td></tr>");
 		}
@@ -148,4 +154,5 @@ public class GenerateCombinedIndication {
         objCreateWatchListYahoo.stopSelenium();
         logger.debug("CreateWatchListForTopStock end");
 	}
+	
 }
