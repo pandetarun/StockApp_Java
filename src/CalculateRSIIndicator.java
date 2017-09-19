@@ -46,7 +46,7 @@ public class CalculateRSIIndicator {
 			//calculate RSI on bulk
 			//calculateRSIForStockInBulk(nseCode);
 			//calculate average on daily basis
-			calculateRSIForStock(nseCode, new Date("18-Sep-2017"));
+			calculateRSIForStock(nseCode, null);
 		}
 	}
 	
