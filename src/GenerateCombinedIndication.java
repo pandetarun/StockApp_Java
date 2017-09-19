@@ -118,12 +118,30 @@ public class GenerateCombinedIndication {
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).tradeddate + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockCode + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockPrice + "</td>");
-			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).SMNSMcrossover + "</td>");
-			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).PNSMAcrossover + "</td>");
+			if(objFinalSelectedStockList.get(counter).SMNSMcrossover) {
+				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).SMNSMcrossover + "</td>");
+			} else {
+				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).SMNSMcrossover + "</td>");
+			}
+			if(objFinalSelectedStockList.get(counter).PNSMAcrossover) {
+				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).PNSMAcrossover + "</td>");
+			} else {
+				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).PNSMAcrossover + "</td>");
+			}
+			
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).percentagePriceChange + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).percentageChangeInVolumeInLastDay + "</td>");
-			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).BBIndicator + "</td>");
-			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).rsiValue + "</td>");
+			if(objFinalSelectedStockList.get(counter).BBIndicator.equalsIgnoreCase("Contracting")) {
+				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).BBIndicator + "</td>");
+			} else {
+				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).BBIndicator + "</td>");
+			}
+			if(objFinalSelectedStockList.get(counter).rsiValue>= 30 && objFinalSelectedStockList.get(counter).rsiValue <=70) {
+				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).rsiValue + "</td>");
+			} else {
+				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).rsiValue + "</td>");
+			}
+			
 			mailBody.append("<td>" +  "</td>");
 			mailBody.append("<td>" +  "</td></tr>");
 		}

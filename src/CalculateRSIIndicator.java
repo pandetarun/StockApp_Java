@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.swing.text.DateFormatter;
+
 import org.apache.log4j.Logger;
 
 public class CalculateRSIIndicator {
@@ -36,7 +38,6 @@ public class CalculateRSIIndicator {
 		String stockName;
 		String bseCode;
 		String nseCode;
-
 		for (String stockCode : stockList) {
 			
 			stockName = stockCode.split("!")[1];
@@ -309,7 +310,7 @@ public class CalculateRSIIndicator {
 				connection = null;
 			}
 			connection = StockUtils.connectToDB();
-			tmpSQL = "SELECT STOCKRSI FROM DAILY_RELATIVE_STRENGTH_INDEX where stockname='"	+ stockCode + "' and tradeddate='" + dateFormat.format(objDate) +"' and period =" + RSI_PERIOD + ";";
+			tmpSQL = "SELECT STOCKRSI FROM DAILY_RELATIVE_STRENGTH_INDEX where stockname='"	+ stockCode + "' and tradeddate='" + objDate.toString() +"' and period =" + RSI_PERIOD + ";";
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
@@ -319,7 +320,7 @@ public class CalculateRSIIndicator {
 			statement = null;
 			return stockRSI;
 		} catch (Exception ex) {
-			System.out.println("getRSIValue Error in DB action");
+			System.out.println("getRSIValue Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return 0;
 		} finally {
@@ -329,7 +330,7 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("getRSIValue Error in DB action");
+				System.out.println("getRSIValue Error in DB action"+ex);
 				logger.error("Error in getRSIValue  -> ", ex);
 			}
 		}
