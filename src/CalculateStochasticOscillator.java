@@ -62,7 +62,7 @@ public class CalculateStochasticOscillator {
 			connection = StockUtils.connectToDB();
 			highestHigh = stockDetails.highPrice.get(0);
 			lowestLow = stockDetails.lowPrice.get(0);
-			for (int counter = 13; counter < stockDetails.tradeddate.size(); counter++) {
+			for (int counter = STOCHASTIC_PERIOD-1; counter < stockDetails.tradeddate.size(); counter++) {
 				highestHighArr =  new ArrayList<>(stockDetails.highPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter));
 				lowestLowArr =   new ArrayList<>(stockDetails.lowPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter));
 				Collections.sort(highestHighArr, comparatorForLow);
