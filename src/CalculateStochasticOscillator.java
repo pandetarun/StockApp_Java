@@ -160,6 +160,119 @@ public class CalculateStochasticOscillator {
 		}
 	}
 	
+	private void calculateStochasticOscillatorForStockDaily(String stockCode) {
+		StochasticOscillatorData stockDetails = null;
+		float lowestLow = 0, highestHigh = 0, stochasticOscillator;
+		//Get stock details from dailystockdata table
+		stockDetails = getStockDetailsFromDBDaily(stockCode);
+		ArrayList<Float> highestHighArr, lowestLowArr;
+		Comparator<Float> comparatorForLow = Collections.reverseOrder();
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			//highestHigh = stockDetails.highPrice.get(0);
+			//lowestLow = stockDetails.lowPrice.get(0);
+			//for (int counter = STOCHASTIC_PERIOD-1; counter < stockDetails.tradeddate.size(); counter++) {
+				//highestHighArr =  new ArrayList<>(stockDetails.highPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter+1));
+				//lowestLowArr =   new ArrayList<>(stockDetails.lowPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter+1));
+				Collections.sort(stockDetails.highPrice, comparatorForLow);
+				Collections.sort(stockDetails.lowPrice);
+				
+				highestHigh = stockDetails.highPrice.get(0);
+				lowestLow = stockDetails.lowPrice.get(0);				
+				
+				stochasticOscillator = ((stockDetails.closePrice.get(0) - lowestLow)/(highestHigh - lowestLow)) * 100;
+				//Call method to store stochastic oscillator with period in DB
+				System.out.println("Inserting oschillator value in DB");
+				storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(0), STOCHASTIC_PERIOD, stochasticOscillator);
+			
+			//}
+		} catch (Exception ex) {
+			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
+			logger.error("Error in getBBIndicationForStock  -> ", ex);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+			}
+		}
+	}
+	
+	private StochasticOscillatorData getStockDetailsFromDBDaily(String stockCode) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String tradedDate;
+		Float closePrice, highPrice, lowPrice;
+		StochasticOscillatorData soDataObj = null;
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			soDataObj = new StochasticOscillatorData();
+			soDataObj.closePrice = new ArrayList<Float>();
+			soDataObj.tradeddate = new ArrayList<String>();
+			soDataObj.highPrice = new ArrayList<Float>();
+			soDataObj.lowPrice = new ArrayList<Float>();			
+			statement = connection.createStatement();
+			soDataObj.stockName = stockCode;
+			resultSet = statement.executeQuery("SELECT First " + STOCHASTIC_PERIOD + " tradeddate, closeprice, HIGHPRICE, LOWPRICE FROM DAILYSTOCKDATA where stockname='"
+					+ stockCode + "' order by tradeddate desc;");
+			while (resultSet.next()) {
+				tradedDate = resultSet.getString(1);
+				closePrice = Float.parseFloat(resultSet.getString(2));
+				highPrice = Float.parseFloat(resultSet.getString(3));
+				lowPrice = Float.parseFloat(resultSet.getString(4));
+				soDataObj.closePrice.add(closePrice);
+				soDataObj.tradeddate.add(tradedDate);
+				soDataObj.highPrice.add(highPrice);
+				soDataObj.lowPrice.add(lowPrice);
+			}
+			return soDataObj;
+		} catch (Exception ex) {
+			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
+			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
+			}
+		}
+	}
+	
 	private void storeStochasticOscillatorinDB(String stockName, String tradedDate, int period, float stochasticOscillator) {
 		Statement statement = null;
 		String tmpsql;
