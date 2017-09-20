@@ -264,7 +264,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 		String tmpsql;
 		try {
 			
-			connection = StockUtils.connectToDB();
+			//connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 			tmpsql = "INSERT INTO DAILYSNEMOVINGAVERAGES (STOCKNAME, TRADEDDATE, SMA, EMA, PERIOD, CLOSINGPRICE) VALUES('"
 					+ stockName + "','" + tradedDate + "'," + simpMovingAverage + "," + expMovingAverage + "," + period
@@ -285,15 +285,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
-			}
+			
 		}
 	}
 
