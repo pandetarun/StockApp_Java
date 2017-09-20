@@ -1,4 +1,4 @@
-package tarun.stockApp.FinancialIndicator.Calculate;
+package tarun.stockApp.FinancialIndicator.Calculations;
 
 public class StockFinancialIndicator {
 

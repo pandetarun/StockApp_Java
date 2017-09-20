@@ -1,4 +1,4 @@
-package tarun.stockApp.FinancialIndicator.Calculate;
+package tarun.stockApp.FinancialIndicator.Calculations;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
