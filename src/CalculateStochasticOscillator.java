@@ -165,7 +165,6 @@ public class CalculateStochasticOscillator {
 		float lowestLow = 0, highestHigh = 0, stochasticOscillator;
 		//Get stock details from dailystockdata table
 		stockDetails = getStockDetailsFromDBDaily(stockCode);
-		ArrayList<Float> highestHighArr, lowestLowArr;
 		Comparator<Float> comparatorForLow = Collections.reverseOrder();
 		try {
 			if (connection != null) {
@@ -173,23 +172,16 @@ public class CalculateStochasticOscillator {
 				connection = null;
 			}
 			connection = StockUtils.connectToDB();
-			//highestHigh = stockDetails.highPrice.get(0);
-			//lowestLow = stockDetails.lowPrice.get(0);
-			//for (int counter = STOCHASTIC_PERIOD-1; counter < stockDetails.tradeddate.size(); counter++) {
-				//highestHighArr =  new ArrayList<>(stockDetails.highPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter+1));
-				//lowestLowArr =   new ArrayList<>(stockDetails.lowPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter+1));
-				Collections.sort(stockDetails.highPrice, comparatorForLow);
-				Collections.sort(stockDetails.lowPrice);
-				
-				highestHigh = stockDetails.highPrice.get(0);
-				lowestLow = stockDetails.lowPrice.get(0);				
-				
-				stochasticOscillator = ((stockDetails.closePrice.get(0) - lowestLow)/(highestHigh - lowestLow)) * 100;
-				//Call method to store stochastic oscillator with period in DB
-				System.out.println("Inserting oschillator value in DB");
-				storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(0), STOCHASTIC_PERIOD, stochasticOscillator);
+			Collections.sort(stockDetails.highPrice, comparatorForLow);
+			Collections.sort(stockDetails.lowPrice);
 			
-			//}
+			highestHigh = stockDetails.highPrice.get(0);
+			lowestLow = stockDetails.lowPrice.get(0);				
+			
+			stochasticOscillator = ((stockDetails.closePrice.get(0) - lowestLow)/(highestHigh - lowestLow)) * 100;
+			//Call method to store stochastic oscillator with period in DB
+			System.out.println("Inserting oschillator value in DB");
+			storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(0), STOCHASTIC_PERIOD, stochasticOscillator);
 		} catch (Exception ex) {
 			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
 			logger.error("Error in getBBIndicationForStock  -> ", ex);

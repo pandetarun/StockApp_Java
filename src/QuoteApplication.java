@@ -54,6 +54,11 @@ public class QuoteApplication {
 				CalculateRSIIndicator obj = new CalculateRSIIndicator();
 				obj.CalculateRSIForAllStocks();
 				logger.debug("CalculateRSIIndicator End");
+			} else if (args[0].equalsIgnoreCase("calculateStochastic")) {
+				logger.debug("CalculateStochasticIndicator Started");
+				CalculateStochasticOscillator obj = new CalculateStochasticOscillator();
+				obj.CalculateStochasticOscillatorForAllStocks();
+				logger.debug("CalculateStochasticIndicator End");
 			}
 		} else {
 			System.out.println("No Args specified");
