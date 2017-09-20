@@ -53,7 +53,12 @@ public class CollectDailyStockData extends SetupBase {
 			getStoredStockNSECode();
 			
 			File inputFolder = new File(downloadFilepath);			
-			File[] inputFileList = inputFolder.listFiles();	
+			File[] inputFileList = inputFolder.listFiles();
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
 			for (File inputFile : inputFileList) {
 				if (inputFile.getName().contains(".zip")) {
 					ZipFile zipFile = new ZipFile(inputFile);
@@ -98,7 +103,17 @@ public class CollectDailyStockData extends SetupBase {
 			System.out.println("Error in reading zip fil "+ex);
 			logger.error("Error in startCollectingDailyData - > "+ex);
 			inputFileForDeletion.delete();	
-		}	
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in closing connection in startCollectingDailyData "+ex);
+				logger.error("Error in closing connection in startCollectingDailyData  -> ", ex);
+			}
+		}
 	}
 	
 	private void getDailyDataFile () {		
@@ -140,9 +155,12 @@ public class CollectDailyStockData extends SetupBase {
         String stockNSECode;
         try {     
         	storedStockNSECode = new ArrayList<String>();
+        	if (connection != null) {
+				connection.close();
+				connection = null;
+			}
         	connection = StockUtils.connectToDB();
-        	statement = connection.createStatement();
-        	
+        	statement = connection.createStatement();        	
         	resultSet = statement.executeQuery("SELECT NSECODE FROM STOCKDETAILS;");
         	while (resultSet.next()) {
         		stockNSECode = resultSet.getString(1);
@@ -154,7 +172,35 @@ public class CollectDailyStockData extends SetupBase {
         	System.out.println("Error in DB action"+ex);
         	logger.error("Error in getStoredStockNSECode -> ", ex);
         	return false;
-        }
+        } finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
+			}
+		}
 	}
 	
 	private void storeQuotestoDB() {
@@ -169,6 +215,16 @@ public class CollectDailyStockData extends SetupBase {
         } catch(Exception ex){
         	System.out.println("storeQuotestoDB for quote -> " + quotesDataObj.stockName + " and Date - > " + quotesDataObj.quoteDate + " Error in DB action"+ex);
         	logger.error("Error in storeQuotestoDB -> ", ex);
-        }
+        } finally {
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+		}
 	}
 }

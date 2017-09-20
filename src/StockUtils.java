@@ -61,12 +61,37 @@ public class StockUtils {
 					return false;
 				}
 			}
-			resultSet.close();
-			connection.close();
-			connection = null;
 		} catch (Exception ex) {
 			System.out.println("getFinancialIndication Error in getting indication = " + ex);
 			return true;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getFinancialIndication Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getFinancialIndication  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getFinancialIndication Error in closing statement "+ex);
+				logger.error("Error in closing statement getFinancialIndication  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getFinancialIndication Error in closing connection "+ex);
+				logger.error("Error in closing connection getFinancialIndication  -> ", ex);
+			}
 		}
 		//Returning true in case of no data to avoid loosing good stock
 		return true;
@@ -92,13 +117,38 @@ public class StockUtils {
 				stockList.add(stockBSECode);
 				// System.out.println("StockNme - " + stockNSECode);
 			}
-			resultSet.close();
-			connection.close();
-			connection = null;
 			return stockList;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
 			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockListFromDB Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockListFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockListFromDB Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockListFromDB  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getStockListFromDB Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockListFromDB  -> ", ex);
+			}
 		}
 	}
 }
