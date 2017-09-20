@@ -1,7 +1,6 @@
 package tarun.stockApp.FinancialIndicator.Calculations;
 
 public class StockFinancialIndicator {
-
 	public String stockName;
 	public String BSECode;
 	public String dateCollected;
