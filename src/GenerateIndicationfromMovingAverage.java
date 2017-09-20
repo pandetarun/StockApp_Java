@@ -30,8 +30,8 @@ public class GenerateIndicationfromMovingAverage {
 		logger.debug("CalculateIndicationfromSMA start");
 		ArrayList<String> stocklist = null;
 		Date todayDate = new Date();
-//		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
-//			return;
+		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+			return;
 		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = StockUtils.getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
@@ -129,45 +129,6 @@ public class GenerateIndicationfromMovingAverage {
 		System.out.println("End");
 	}
 
-	private ArrayList<String> getStockListFromDB() {
-
-		ResultSet resultSet = null;
-		Statement statement = null;
-		ArrayList<String> stockList = null;
-		String stockBSECode;
-		
-		try {
-			stockList = new ArrayList<String>();
-			connection = StockUtils.connectToDB();
-			statement = connection.createStatement();
-
-			resultSet = statement.executeQuery("SELECT BSECODE, stockname FROM STOCKDETAILS;");
-			while (resultSet.next()) {
-				stockBSECode = resultSet.getString(1);
-				stockBSECode = stockBSECode + "!" + resultSet.getString(2);
-				stockList.add(stockBSECode);
-				// System.out.println("StockNme - " + stockNSECode);
-			}
-			resultSet.close();
-			connection.close();
-			connection = null;
-			return stockList;
-		} catch (Exception ex) {
-			System.out.println("Error in DB action");
-			return null;
-		} finally {
-			try {
-				if(connection != null) {
-					connection.close();
-					connection = null;
-				}
-			}catch (Exception ex) {
-				System.out.println("Error in closing connection in finally = " + ex);				
-				return null;
-			}
-		}
-	}
-
 	private void CalculateIndicationfromSMA(String stockCode) {
 		ArrayList<Integer> prefPeriod = null;
 		ArrayList<Float> lowerSMAPeriodValues = null;
@@ -200,6 +161,10 @@ public class GenerateIndicationfromMovingAverage {
 
 		try {
 			prefPeriod = new ArrayList<Integer>();
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
@@ -218,13 +183,31 @@ public class GenerateIndicationfromMovingAverage {
 			return null;
 		} finally {
 			try {
-				if(connection != null) {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetPreferredSMA Error in closing resultset "+ex);
+				logger.error("Error in closing resultset GetPreferredSMA  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetPreferredSMA Error in closing statement "+ex);
+				logger.error("Error in closing statement GetPreferredSMA  -> ", ex);
+			}
+			try {
+				if (connection != null) {
 					connection.close();
 					connection = null;
-				}
-			}catch (Exception ex) {
-				System.out.println("Error in closing connection in finally = " + ex);				
-				return null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("GetPreferredSMA Error in closing connection "+ex);
+				logger.error("Error in closing connection GetPreferredSMA  -> ", ex);
 			}
 		}
 		return prefPeriod;
@@ -238,6 +221,10 @@ public class GenerateIndicationfromMovingAverage {
 
 		try {
 			SMAData = new ArrayList<Float>();
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
@@ -255,13 +242,31 @@ public class GenerateIndicationfromMovingAverage {
 			return null;
 		} finally {
 			try {
-				if(connection != null) {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetSMAData Error in closing resultset "+ex);
+				logger.error("Error in closing resultset GetSMAData  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetSMAData Error in closing statement "+ex);
+				logger.error("Error in closing statement GetSMAData  -> ", ex);
+			}
+			try {
+				if (connection != null) {
 					connection.close();
 					connection = null;
-				}
-			}catch (Exception ex) {
-				System.out.println("Error in closing connection in finally = " + ex);				
-				return null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("GetSMAData Error in closing connection "+ex);
+				logger.error("Error in closing connection GetSMAData  -> ", ex);
 			}
 		}
 		return SMAData;
@@ -275,6 +280,10 @@ public class GenerateIndicationfromMovingAverage {
 
 		try {
 			priceData = new ArrayList<Float>();
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
@@ -290,22 +299,37 @@ public class GenerateIndicationfromMovingAverage {
 				}
 				// System.out.println("StockNme - " + stockNSECode);
 			}
-			resultSet.close();
-			connection.close();
-			connection = null;
 		} catch (Exception ex) {
 			System.out.println("Error in getting price = " + ex);
 			
 			return null;
 		} finally {
 			try {
-				if(connection != null) {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetStockPrices Error in closing resultset "+ex);
+				logger.error("Error in closing resultset GetStockPrices  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetStockPrices Error in closing statement "+ex);
+				logger.error("Error in closing statement GetStockPrices  -> ", ex);
+			}
+			try {
+				if (connection != null) {
 					connection.close();
 					connection = null;
-				}
-			}catch (Exception ex) {
-				System.out.println("Error in closing connection in finally = " + ex);				
-				return null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("GetStockPrices Error in closing connection "+ex);
+				logger.error("Error in closing connection GetStockPrices  -> ", ex);
 			}
 		}
 		return priceData;
@@ -470,7 +494,10 @@ public class GenerateIndicationfromMovingAverage {
 		String indication;
 
 		try {
-			//priceData = new ArrayList<Float>();
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
@@ -485,12 +512,38 @@ public class GenerateIndicationfromMovingAverage {
 					return false;
 				}
 			}
-			resultSet.close();
-			connection.close();
-			connection = null;
+			
 		} catch (Exception ex) {
 			System.out.println("getFinancialIndication Error in getting indication = " + ex);
 			return true;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getFinancialIndication Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getFinancialIndication  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getFinancialIndication Error in closing statement "+ex);
+				logger.error("Error in closing statement getFinancialIndication  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getFinancialIndication Error in closing connection "+ex);
+				logger.error("Error in closing connection getFinancialIndication  -> ", ex);
+			}
 		}
 		//Returning true in case of no data to avoid loosing good stock
 		return true;
