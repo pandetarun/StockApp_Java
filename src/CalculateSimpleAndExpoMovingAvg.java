@@ -151,7 +151,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 				smaDataObj.closePrice.add(closePrice);
 				smaDataObj.tradeddate.add(tradedDate);
 			}
-			statement = null;
 			return smaDataObj;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
@@ -159,14 +158,31 @@ public class CalculateSimpleAndExpoMovingAvg {
 			return null;
 		} finally {
 			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDB Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDB Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
-				return null;
+				System.out.println("getStockDetailsFromDB Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}
 		}
 	}
@@ -206,7 +222,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 				smaDataObj.closePrice.add(closePrice);
 				smaDataObj.tradeddate.add(tradedDate);
 			}
-			statement = null;
 			return smaDataObj;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
@@ -214,14 +229,31 @@ public class CalculateSimpleAndExpoMovingAvg {
 			return null;
 		} finally {
 			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForDaily Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
+			}
+			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
-				return null;
+				System.out.println("getStockDetailsFromDBForDaily Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
 			}
 		}
 	}
@@ -244,6 +276,15 @@ public class CalculateSimpleAndExpoMovingAvg {
 			logger.error("Error in storeMovingAverageinDB  ->  storeMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period, ex);
 		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
+			}
 			try {
 				if (connection != null) {
 					connection.close();
@@ -285,7 +326,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 				break;
 				// System.out.println("StockNme - " + stockNSECode);
 			}
-			statement = null;
 			return eMA;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
@@ -293,13 +333,31 @@ public class CalculateSimpleAndExpoMovingAvg {
 			return eMA;
 		} finally {
 			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getExpMovingAverageFromDB Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getExpMovingAverageFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getExpMovingAverageFromDB Error in closing statement "+ex);
+				logger.error("Error in closing statement getExpMovingAverageFromDB  -> ", ex);
+			}
+			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("getExpMovingAverageFromDB Error in closing connection "+ex);
+				logger.error("Error in closing connection getExpMovingAverageFromDB  -> ", ex);
 			}
 		}
 	}

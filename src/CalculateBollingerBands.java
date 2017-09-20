@@ -137,22 +137,38 @@ public class CalculateBollingerBands {
 			while (resultSet.next()) {
 				bbPeriod = resultSet.getString(1);
 			}
-			statement = null;
 			return bbPeriod;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("getBBPeriod Error in DB action "+ex);
 			logger.error("Error in getBBPeriod  -> ", ex);
 			return null;
 		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getBBPeriod Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getBBPeriod  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getBBPeriod Error in closing statement "+ex);
+				logger.error("Error in closing statement getBBPeriod  -> ", ex);
+			}
 			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
-				return null;
+				System.out.println("getBBPeriod Error in closing connection "+ex);
+				logger.error("Error in closing connection getBBPeriod  -> ", ex);
 			}
 		}
 	}
@@ -189,19 +205,36 @@ public class CalculateBollingerBands {
 			}
 			return objDailyStockDataList;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action"+ex);
+			System.out.println("Error in DB action "+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
 		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForDaily Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
+			}
 			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action"+ex);
+				System.out.println("getStockDetailsFromDBForDaily Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
-				return null;
 			}
 		}
 	}
@@ -221,6 +254,16 @@ public class CalculateBollingerBands {
 		} catch (Exception ex) {
 			System.out.println("insertBBToDB Error in DB action ->"+ex);
 			logger.error("Error in insertBBToDB  -> ", ex);
+		} finally {			
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
+			}
 		}
 	}	
 	
@@ -252,6 +295,7 @@ public class CalculateBollingerBands {
 		//ArrayList<String> tmpBBPeriodArray;
 		System.out.println("Creating BB entry for stock -> " + stockCode);
 		objDailyStockDataList = getStockDetailsFromDBForDaily(stockCode, date);
+		
 		if(objDailyStockDataList.size()>0) {			
 			counter = 1;
 			totalPrice = 0;
@@ -354,22 +398,38 @@ public class CalculateBollingerBands {
 				} else {
 				}
 			}
-			statement = null;
 			return bbContracting;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("getBBIndicationForStock Error in DB action "+ex);
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
 			return "expanding";
 		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getBBIndicationForStock Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getBBIndicationForStock  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getBBIndicationForStock Error in closing statement "+ex);
+				logger.error("Error in closing statement getBBIndicationForStock  -> ", ex);
+			}
 			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
-				return null;
+				System.out.println("getBBIndicationForStock Error in closing connection "+ex);
+				logger.error("Error in closing connection getBBIndicationForStock  -> ", ex);
 			}
 		}
 	}

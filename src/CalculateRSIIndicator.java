@@ -185,8 +185,6 @@ public class CalculateRSIIndicator {
 				smaDataObj.closePrice.add(closePrice);
 				smaDataObj.tradeddate.add(tradedDate);
 			}
-			statement.close();
-			statement = null;
 			return smaDataObj;
 		} catch (Exception ex) {
 			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
@@ -194,13 +192,31 @@ public class CalculateRSIIndicator {
 			return null;
 		} finally {
 			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDBForBulk  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDBForBulk  -> ", ex);
+			}
+			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDBForBulk  -> ", ex);
 			}
 		}
 	}
@@ -259,9 +275,6 @@ public class CalculateRSIIndicator {
 				rsiDataObj.previousDayAvgGain = avgGain;
 				rsiDataObj.previousDayAvgLoss = avgLoss;
 			}
-			
-			statement.close();
-			statement = null;
 			return rsiDataObj;
 		} catch (Exception ex) {
 			System.out.println("Error in DB action");
@@ -269,13 +282,31 @@ public class CalculateRSIIndicator {
 			return null;
 		} finally {
 			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}
 		}
 	}
@@ -315,9 +346,7 @@ public class CalculateRSIIndicator {
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				stockRSI = Float.parseFloat(resultSet.getString(1));
-			}			
-			statement.close();
-			statement = null;
+			}
 			return stockRSI;
 		} catch (Exception ex) {
 			System.out.println("getRSIValue Error in DB action"+ex);
@@ -325,13 +354,31 @@ public class CalculateRSIIndicator {
 			return 0;
 		} finally {
 			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+			try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("getRSIValue Error in DB action"+ex);
-				logger.error("Error in getRSIValue  -> ", ex);
+				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}
 		}
 	}
