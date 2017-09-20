@@ -72,7 +72,7 @@ public class CalculateStochasticOscillator {
 					stochasticOscillator = ((stockDetails.closePrice.get(counter) - lowestLow)/(highestHigh - lowestLow)) * 100;
 					//Call method to store stochastic oscillator with period in DB
 					System.out.println("Inserting oschillator value in DB");
-					storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(counter), counter, stochasticOscillator);
+					storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(counter), STOCHASTIC_PERIOD, stochasticOscillator);
 				}
 			}
 		} catch (Exception ex) {
