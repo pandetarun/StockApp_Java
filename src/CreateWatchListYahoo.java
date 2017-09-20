@@ -6,7 +6,6 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
 public class CreateWatchListYahoo extends SetupBase {
@@ -136,7 +135,20 @@ public class CreateWatchListYahoo extends SetupBase {
 			}
 			//Close help popup
 			ele = driver.findElement(By.xpath("//*[@id='feature-tour']/div/div/button"));
-			ele.click();			
+			ele.click();
+			try {
+				Thread.sleep(1000);
+			} catch(Exception ex) {
+				System.out.println("Error in waiting for drop down suggestion");
+			}
+			//Click on add symbol button
+			ele = driver.findElement(By.xpath("//*[@id='main']/section/div/button[1]"));
+			ele.click();
+			try {
+				Thread.sleep(1000);
+			} catch(Exception ex) {
+				System.out.println("Error in waiting for drop down suggestion");
+			}
 		} catch (Exception ex) {
 			System.out.println("Error in creatWatchList "+ex);
 			logger.error("Error in creatWatchList - > "+ex);
@@ -146,14 +158,7 @@ public class CreateWatchListYahoo extends SetupBase {
 	public void addStocksToWatchList(String stockCode) {
 		
 		WebElement ele = null;	
-		//Click on add symbol button
-		ele = driver.findElement(By.xpath("//*[@id='main']/section/div/button[1]"));
-		ele.click();
-		try {
-			Thread.sleep(1000);
-		} catch(Exception ex) {
-			System.out.println("Error in waiting for drop down suggestion");
-		}
+		
 		//Provide stock code
 		ele = driver.findElement(By.xpath("//*[@id='__dialog']/section/div/form/div/div[1]/input"));
 		ele.sendKeys(stockCode+".NS");
@@ -182,13 +187,13 @@ public class CreateWatchListYahoo extends SetupBase {
 			System.out.println("Error in waiting for drop down suggestion");
 		}
 		//close popuup
-		ele = driver.findElement(By.xpath("//*[@id='__dialog']/section/button"));
-		ele.click();
-		try {
-			Thread.sleep(1000);
-		} catch(Exception ex) {
-			System.out.println("Error in waiting for drop down suggestion");
-		}
+//		ele = driver.findElement(By.xpath("//*[@id='__dialog']/section/button"));
+//		ele.click();
+//		try {
+//			Thread.sleep(1000);
+//		} catch(Exception ex) {
+//			System.out.println("Error in waiting for drop down suggestion");
+//		}
 		
 	}
 	
