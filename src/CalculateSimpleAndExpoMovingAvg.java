@@ -350,15 +350,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 				System.out.println("getExpMovingAverageFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement getExpMovingAverageFromDB  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				System.out.println("getExpMovingAverageFromDB Error in closing connection "+ex);
-				logger.error("Error in closing connection getExpMovingAverageFromDB  -> ", ex);
-			}
 		}
 	}
 }
