@@ -87,6 +87,8 @@ public class GenerateCombinedIndication {
 		
 		String bbIndicator;
 		float rsiIndication;
+		float chandelierExitLong;
+		float chandelierExitShort;
 		
 		objFinalSelectedStock = new FinalSelectedStock();
 		//add selcted stock
@@ -95,6 +97,10 @@ public class GenerateCombinedIndication {
 		
 		objCalculateBollingerBands = new CalculateBollingerBands();
 		bbIndicator = objCalculateBollingerBands.getBBIndicationForStock(objSMAIndicatorDetails.stockCode);
+		
+		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
+		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, null);
+		chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, null);
 		
 		objCalculateRSIIndicator = new CalculateRSIIndicator();
 		rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
@@ -108,6 +114,9 @@ public class GenerateCombinedIndication {
 		objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
 		objFinalSelectedStock.BBIndicator = bbIndicator;
 		objFinalSelectedStock.rsiValue = rsiIndication;
+		objFinalSelectedStock.chandelierExitLong = chandelierExitLong;
+		objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
+		
 		return objFinalSelectedStock;
 	}
 	
@@ -116,7 +125,7 @@ public class GenerateCombinedIndication {
 		StringBuilder mailBody = new StringBuilder();
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>Stock Price</th><th>9 to 50 SM Cross</th><th>Price crossed 20 SMA</th><th>% Price Change</th><th>% Volume Increase</th><th>BB Indication</th>"
-				+ "<th>RSI Indication</th><th>MACD Indication</th><th>Stochastic Oscillator</th><th>Accumulation/ Distribution Line</th></tr>");			
+				+ "<th>RSI Indication</th><th>Chandelier Exit</th><th>Stochastic Oscillator</th><th>MACD Indication</th><th>Accumulation/ Distribution Line</th></tr>");			
 		for (int counter = 0; counter <(objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()); counter++) {
 			mailBody.append("<tr><td>" + (counter+1) + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).tradeddate + "</td>");
@@ -146,6 +155,18 @@ public class GenerateCombinedIndication {
 				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).rsiValue + "</td>");
 			}
 			
+			String chandelierExitColValue = objFinalSelectedStockList.get(counter).chandelierExitShort + " - " + objFinalSelectedStockList.get(counter).chandelierExitLong;
+			if(objFinalSelectedStockList.get(counter).stockPrice> objFinalSelectedStockList.get(counter).chandelierExitShort) {
+				if(objFinalSelectedStockList.get(counter).stockPrice>= objFinalSelectedStockList.get(counter).chandelierExitLong) {
+					mailBody.append("<td bgcolor='green'>" + chandelierExitColValue + "</td>");
+				} else {
+					mailBody.append("<td bgcolor='orange'>" + chandelierExitColValue + "</td>");
+				}				
+			} else {
+				mailBody.append("<td bgcolor='red'>" + chandelierExitColValue + "</td>");
+			}
+			
+			mailBody.append("<td>" +  "</td>");
 			mailBody.append("<td>" +  "</td>");
 			mailBody.append("<td>" +  "</td></tr>");
 		}
