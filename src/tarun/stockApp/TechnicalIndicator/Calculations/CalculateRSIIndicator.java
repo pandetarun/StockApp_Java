@@ -322,12 +322,22 @@ public class CalculateRSIIndicator {
 			tmpsql = "INSERT INTO DAILY_RELATIVE_STRENGTH_INDEX (STOCKNAME, TRADEDDATE, PERIOD, STOCKRS, STOCKRSI, AVG_GAIN, AVG_LOSS) VALUES('"
 					+ stockName + "','" + tradedDate + "'," + period + "," + RS + "," + RSI + "," + avgGain + "," + avgLoss + ");";
 			statement.executeUpdate(tmpsql);
-			statement.close();
+			
 		} catch (Exception ex) {
 			System.out.println("storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeRSIinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period, ex);
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getRSIValue Error in closing statement "+ex);
+				logger.error("Error in closing statement getRSIValue  -> ", ex);
+			}
 		}
 	}
 	

@@ -283,13 +283,22 @@ public class CalculateStochasticOscillator {
 			statement = connection.createStatement();
 			tmpsql = "INSERT INTO DAILY_STOCHASTIC_OSCILLATOR (STOCKNAME, TRADEDDATE, PERIOD, STOCHASTIC_OSCILLATOR) VALUES('"
 					+ stockName + "','" + tradedDate + "'," + period + "," + stochasticOscillator + ");";
-			statement.executeUpdate(tmpsql);
-			statement.close();
+			statement.executeUpdate(tmpsql);			
 		} catch (Exception ex) {
 			System.out.println("storeStochasticOscillatorinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeStochasticOscillatorinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period, ex);
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("storeStochasticOscillatorinDB Error in closing statement "+ex);
+				logger.error("Error in closing statement storeStochasticOscillatorinDB  -> ", ex);
+			}
 		}
 	}
 }
