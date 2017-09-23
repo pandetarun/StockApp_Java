@@ -2,6 +2,8 @@ package tarun.stockApp.TechnicalIndicator.Calculations;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,16 +39,15 @@ public class CalculateStochasticOscillator {
 		String stockName;
 		String bseCode;
 		String nseCode;
-		for (String stockCode : stockList) {
-			
+		for (String stockCode : stockList) {			
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
 			System.out.println("Calculating Stochastic oscillator for stock - >"+nseCode);
 			//calculate RSI on bulk
-			calculateStochasticOscillatorForStockInBulk(nseCode);
+			//calculateStochasticOscillatorForStockInBulk(nseCode);
 			//calculate average on daily basis
-			//calculateStochasticOscillatorForStock(nseCode, null);
+			calculateStochasticOscillatorForStockDaily(nseCode, null);
 		}
 	}
 	
@@ -62,9 +63,7 @@ public class CalculateStochasticOscillator {
 				connection.close();
 				connection = null;
 			}
-			connection = StockUtils.connectToDB();
-			highestHigh = stockDetails.highPrice.get(0);
-			lowestLow = stockDetails.lowPrice.get(0);
+			connection = StockUtils.connectToDB();			
 			for (int counter = STOCHASTIC_PERIOD-1; counter < stockDetails.tradeddate.size(); counter++) {
 				highestHighArr =  new ArrayList<>(stockDetails.highPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter+1));
 				lowestLowArr =   new ArrayList<>(stockDetails.lowPrice.subList((counter+1) - STOCHASTIC_PERIOD, counter+1));
@@ -163,11 +162,11 @@ public class CalculateStochasticOscillator {
 		}
 	}
 	
-	private void calculateStochasticOscillatorForStockDaily(String stockCode) {
+	private void calculateStochasticOscillatorForStockDaily(String stockCode, Date targetDate) {
 		StochasticOscillatorData stockDetails = null;
 		float lowestLow = 0, highestHigh = 0, stochasticOscillator;
 		//Get stock details from dailystockdata table
-		stockDetails = getStockDetailsFromDBDaily(stockCode);
+		stockDetails = getStockDetailsFromDBDaily(stockCode, targetDate);
 		Comparator<Float> comparatorForLow = Collections.reverseOrder();
 		try {
 			if (connection != null) {
@@ -201,12 +200,15 @@ public class CalculateStochasticOscillator {
 		}
 	}
 	
-	private StochasticOscillatorData getStockDetailsFromDBDaily(String stockCode) {
+	private StochasticOscillatorData getStockDetailsFromDBDaily(String stockCode, Date calculationDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tradedDate;
 		Float closePrice, highPrice, lowPrice;
 		StochasticOscillatorData soDataObj = null;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		
 		try {
 			if (connection != null) {
 				connection.close();
@@ -220,8 +222,14 @@ public class CalculateStochasticOscillator {
 			soDataObj.lowPrice = new ArrayList<Float>();			
 			statement = connection.createStatement();
 			soDataObj.stockName = stockCode;
-			resultSet = statement.executeQuery("SELECT First " + STOCHASTIC_PERIOD + " tradeddate, closeprice, HIGHPRICE, LOWPRICE FROM DAILYSTOCKDATA where stockname='"
-					+ stockCode + "' order by tradeddate desc;");
+			if(calculationDate!=null) {
+				tmpSQL = "SELECT First " + STOCHASTIC_PERIOD + " tradeddate, closeprice, HIGHPRICE, LOWPRICE FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "'  and tradeddate<='" + dateFormat.format(calculationDate) +"' order by tradeddate desc;";
+			} else {
+				tmpSQL = "SELECT First " + STOCHASTIC_PERIOD + " tradeddate, closeprice, HIGHPRICE, LOWPRICE FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' order by tradeddate desc;";
+			}
+			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				tradedDate = resultSet.getString(1);
 				closePrice = Float.parseFloat(resultSet.getString(2));
