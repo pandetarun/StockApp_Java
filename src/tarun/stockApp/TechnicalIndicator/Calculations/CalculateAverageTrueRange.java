@@ -81,7 +81,7 @@ public class CalculateAverageTrueRange {
 						averageTrueRange = sumOfTrueRange / ATR_PERIOD;
 						//Store ATR in DB
 						System.out.println("Inserting oschillator value in DB Date-> "+ stockDetails.tradeddate.get(counter) + " ATR -> "+ averageTrueRange );
-						//storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(counter), ATR_PERIOD, stochasticOscillator);
+						storeATRinDB(stockCode, stockDetails.tradeddate.get(counter), ATR_PERIOD, averageTrueRange);
 					}
 				} else {
 					currentHighLowDifference = stockDetails.highPrice.get(counter) - stockDetails.lowPrice.get(counter);
@@ -90,7 +90,8 @@ public class CalculateAverageTrueRange {
 					trueRange =  Math.max(currentLowAndPreviousCloseDifference, Math.max(currentHighLowDifference, currentHighAndPreviousCloseDifference));
 					averageTrueRange = ((averageTrueRange* (ATR_PERIOD-1)) + trueRange) / ATR_PERIOD;
 					System.out.println("Inserting oschillator value in DB Date-> "+ stockDetails.tradeddate.get(counter) + " ATR -> "+ averageTrueRange );
-					//storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(counter), ATR_PERIOD, stochasticOscillator);
+					
+					storeATRinDB(stockCode, stockDetails.tradeddate.get(counter), ATR_PERIOD, averageTrueRange);
 				}
 				
 			
@@ -175,6 +176,23 @@ public class CalculateAverageTrueRange {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}
+		}
+	}
+	
+	private void storeATRinDB(String stockName, String tradedDate, int period, float atr) {
+		Statement statement = null;
+		String tmpsql;
+		try {
+			statement = connection.createStatement();
+			tmpsql = "INSERT INTO DAILY_AVERAGE_TRUE_RANGE (STOCKNAME, TRADEDDATE, PERIOD, ATR) VALUES('"
+					+ stockName + "','" + tradedDate + "'," + period + "," + atr + ");";
+			statement.executeUpdate(tmpsql);
+			statement.close();
+		} catch (Exception ex) {
+			System.out.println("storeStochasticOscillatorinDB for quote -> " + stockName + " and Date - > " + tradedDate
+					+ " and period  - > " + period + " Error in DB action" + ex);
+			logger.error("Error in storeStochasticOscillatorinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
+					+ " and period  - > " + period, ex);
 		}
 	}
 	
