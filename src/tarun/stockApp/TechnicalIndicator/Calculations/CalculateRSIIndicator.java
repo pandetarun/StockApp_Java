@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.swing.text.DateFormatter;
-
 import org.apache.log4j.Logger;
 
 import tarun.stockApp.TechnicalIndicator.Data.RSIData;
@@ -258,6 +256,8 @@ public class CalculateRSIIndicator {
 				rsiDataObj.closePrice.add(closePrice);
 				rsiDataObj.tradeddate.add(tradedDate);
 			}
+			resultSet.close();
+			resultSet = null;
 			statement.close();
 			statement = null;
 			
@@ -344,7 +344,7 @@ public class CalculateRSIIndicator {
 	public float getRSIValue(String stockCode, LocalDate objDate) {
 		Statement statement = null;
 		ResultSet resultSet = null;
-		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		//DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 		String tmpSQL;
 		float stockRSI = 0;
 		
