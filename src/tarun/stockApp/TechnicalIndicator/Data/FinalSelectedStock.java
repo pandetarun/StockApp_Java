@@ -12,6 +12,8 @@ public class FinalSelectedStock {
 	public float percentageChangeInVolumeInLastDay;
 	public String BBIndicator;
 	public float rsiValue;
+	public float chandelierExitLong;
+	public float chandelierExitShort;
 	
 	@Override
 	public int hashCode() {

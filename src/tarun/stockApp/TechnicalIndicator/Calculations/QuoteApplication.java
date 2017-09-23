@@ -60,6 +60,11 @@ public class QuoteApplication {
 				CalculateStochasticOscillator obj = new CalculateStochasticOscillator();
 				obj.CalculateStochasticOscillatorForAllStocks();
 				logger.debug("CalculateStochasticIndicator End");
+			} else if (args[0].equalsIgnoreCase("calculateATR")) {
+				logger.debug("CalculateATR Started");
+				CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
+				obj.calculateAverageTrueRangeForAllStocks();
+				logger.debug("CalculateATR End");
 			}
 		} else {
 			System.out.println("No Args specified");
