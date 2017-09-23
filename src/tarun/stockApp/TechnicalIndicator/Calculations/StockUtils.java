@@ -1,5 +1,6 @@
 package tarun.stockApp.TechnicalIndicator.Calculations;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -151,5 +152,11 @@ public class StockUtils {
 				logger.error("Error in closing connection getStockListFromDB  -> ", ex);
 			}
 		}
+	}
+	
+	private void sendIndicationCalculationNotificationInMail(String indicatorName, Date calculationDate) {
+		logger.debug("sendIndicationCalculationNotificationInMail Started");		
+        new SendSuggestedStockInMail("tarunstockcomm@gmail.com",indicatorName + " calculated for Date "+calculationDate,"Indicator Calculated");        
+        logger.debug("sendIndicationCalculationNotificationInMail end");
 	}
 }
