@@ -3,11 +3,14 @@ package tarun.stockApp.TechnicalIndicator.Calculations;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import tarun.stockApp.TechnicalIndicator.Data.StochasticOscillatorData;
@@ -38,9 +41,7 @@ public class CalculateAverageTrueRange {
 		String stockName;
 		String bseCode;
 		String nseCode;
-		
-//		calculateAverageTrueRangeForStockInBulk("UPL");
-		
+
 		for (String stockCode : stockList) {
 			
 			stockName = stockCode.split("!")[1];
@@ -48,9 +49,9 @@ public class CalculateAverageTrueRange {
 			nseCode = stockCode.split("!")[2];
 			System.out.println("Calculating Average True Range for stock - >"+nseCode);
 			//calculate RSI on bulk
-			calculateAverageTrueRangeForStockInBulk(nseCode);
+			//calculateAverageTrueRangeForStockInBulk(nseCode);
 //			//calculate average on daily basis
-//			//calculateAverageTrueRangeForStock(nseCode, null);
+			calculateAverageTrueRangeForStockDaily(nseCode, null);
 		}
 	}
 	
@@ -179,6 +180,157 @@ public class CalculateAverageTrueRange {
 		}
 	}
 	
+	private void calculateAverageTrueRangeForStockDaily(String stockCode, Date targetDate) {
+		StochasticOscillatorData stockDetails = null;
+		float currentHighLowDifference = 0, currentHighAndPreviousCloseDifference = 0, currentLowAndPreviousCloseDifference = 0, trueRange = 0, sumOfTrueRange = 0, averageTrueRange = 0, previousDayATR = 0;;
+		
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			//Get stock details from dailystockdata table'
+			stockDetails = getStockDetailsFromDBDaily(stockCode, targetDate);
+			//Get previous day ATR
+			if(targetDate != null) {
+				previousDayATR = getPreviousDayATR (stockCode, targetDate);
+			} else {
+				previousDayATR = getPreviousDayATR (stockCode, DateUtils.addDays(new Date(),-1));
+			}
+			
+			
+			currentHighLowDifference = stockDetails.highPrice.get(0) - stockDetails.lowPrice.get(0);
+			currentHighAndPreviousCloseDifference = Math.abs(stockDetails.highPrice.get(0) - stockDetails.closePrice.get(1));
+			currentLowAndPreviousCloseDifference =  Math.abs(stockDetails.lowPrice.get(0) - stockDetails.closePrice.get(1));
+			trueRange =  Math.max(currentLowAndPreviousCloseDifference, Math.max(currentHighLowDifference, currentHighAndPreviousCloseDifference));
+			averageTrueRange = ((previousDayATR * (ATR_PERIOD-1)) + trueRange) / ATR_PERIOD;
+			System.out.println("Inserting oschillator value in DB Date-> "+ stockDetails.tradeddate.get(0) + " ATR -> "+ averageTrueRange );
+					
+			//Call method to store stochastic oscillator with period in DB
+			System.out.println("Inserting oschillator value in DB");
+			storeATRinDB(stockCode, stockDetails.tradeddate.get(0), ATR_PERIOD, averageTrueRange);
+		} catch (Exception ex) {
+			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
+			logger.error("Error in getBBIndicationForStock  -> ", ex);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+			}
+		}
+	}
+	
+	private StochasticOscillatorData getStockDetailsFromDBDaily(String stockCode, Date calculationDate) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String tradedDate;
+		Float closePrice, highPrice, lowPrice;
+		StochasticOscillatorData soDataObj = null;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		
+		try {
+			soDataObj = new StochasticOscillatorData();
+			soDataObj.closePrice = new ArrayList<Float>();
+			soDataObj.tradeddate = new ArrayList<String>();
+			soDataObj.highPrice = new ArrayList<Float>();
+			soDataObj.lowPrice = new ArrayList<Float>();			
+			statement = connection.createStatement();
+			soDataObj.stockName = stockCode;
+			if(calculationDate!=null) {
+				tmpSQL = "SELECT First 2 tradeddate, closeprice, HIGHPRICE, LOWPRICE FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "'  and tradeddate<='" + dateFormat.format(calculationDate) +"' order by tradeddate desc;";
+			} else {
+				tmpSQL = "SELECT First 2 tradeddate, closeprice, HIGHPRICE, LOWPRICE FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' order by tradeddate desc;";
+			}
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				tradedDate = resultSet.getString(1);
+				closePrice = Float.parseFloat(resultSet.getString(2));
+				highPrice = Float.parseFloat(resultSet.getString(3));
+				lowPrice = Float.parseFloat(resultSet.getString(4));
+				soDataObj.closePrice.add(closePrice);
+				soDataObj.tradeddate.add(tradedDate);
+				soDataObj.highPrice.add(highPrice);
+				soDataObj.lowPrice.add(lowPrice);
+			}
+			return soDataObj;
+		} catch (Exception ex) {
+			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
+			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+		}
+	}
+	
+	private float getPreviousDayATR(String stockCode, Date targetDate) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		Date tradedDate = DateUtils.addDays(targetDate, -1);//new DateTime(targetDate).minusDays(1).toDate();
+		float previousDayATR = 0;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		
+		try {		
+			statement = connection.createStatement();
+			tmpSQL = "SELECT ATR FROM DAILY_AVERAGE_TRUE_RANGE where stockname='"
+					+ stockCode + "'  and tradeddate='" + dateFormat.format(tradedDate) +"';";
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				previousDayATR = Float.parseFloat(resultSet.getString(1));
+			}
+			return previousDayATR;
+		} catch (Exception ex) {
+			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
+			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
+			return 0;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+		}
+	}
+	
 	private void storeATRinDB(String stockName, String tradedDate, int period, float atr) {
 		Statement statement = null;
 		String tmpsql;
@@ -187,13 +339,29 @@ public class CalculateAverageTrueRange {
 			tmpsql = "INSERT INTO DAILY_AVERAGE_TRUE_RANGE (STOCKNAME, TRADEDDATE, PERIOD, ATR) VALUES('"
 					+ stockName + "','" + tradedDate + "'," + period + "," + atr + ");";
 			statement.executeUpdate(tmpsql);
-			statement.close();
 		} catch (Exception ex) {
 			System.out.println("storeStochasticOscillatorinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeStochasticOscillatorinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period, ex);
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("storeATRinDB Error in closing statement "+ex);
+				logger.error("Error in closing statement storeATRinDB  -> ", ex);
+			}
 		}
 	}
 	
+//	public float getChandelierExitLong(String nseCode, Date targetDate) {
+//		
+//	}
+//	
+//	public float getChandelierExitShort(String nseCode, Date targetDate) {
+//		
+//	}
 }
