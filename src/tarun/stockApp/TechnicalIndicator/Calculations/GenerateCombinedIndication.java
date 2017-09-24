@@ -35,8 +35,8 @@ public class GenerateCombinedIndication {
 		ArrayList<FinalSelectedStock> objFinalSelectedBelowHundredStockList = new ArrayList<FinalSelectedStock>();
 		FinalSelectedStock objFinalSelectedStock = null;
 		FinalSelectedStock objFinalSelectedBelowHunderdStock;
-//		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
-//			return;
+		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+			return;
 		System.out.println("********* - Get seleted stocks based on SMA");
 		GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
 		obj.CalculateIndicationfromSMA();

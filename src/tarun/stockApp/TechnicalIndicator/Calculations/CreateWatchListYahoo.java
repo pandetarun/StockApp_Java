@@ -162,6 +162,7 @@ public class CreateWatchListYahoo extends SetupBase {
 		
 		//Provide stock code
 		ele = driver.findElement(By.xpath("//*[@id='__dialog']/section/div/form/div/div[1]/input"));
+		ele.clear();
 		ele.sendKeys(stockCode+".NS");
 		try {
 			Thread.sleep(2000);
@@ -169,16 +170,19 @@ public class CreateWatchListYahoo extends SetupBase {
 			System.out.println("Error in waiting for drop down suggestion");
 		}
 		//Find equity code
-		for(int counter = 1; counter <= 40; counter++) {
-			ele = driver.findElement(By.xpath("//*[@id='react-autowhatever-1']/ul/li[" + counter + "]/div/p[2]"));
-			if(ele.getText().contains("NSE")) {
-				//Click on equity code
-				ele = driver.findElement(By.xpath("//*[@id='react-autowhatever-1']/ul/li[" + counter + "]"));
-				ele.click();
-				break;
+		try {
+			for(int counter = 1; counter <= 40; counter++) {
+				ele = driver.findElement(By.xpath("//*[@id='react-autowhatever-1']/ul/li[" + counter + "]/div/p[2]"));
+				if(ele.getText().contains("NSE")) {
+					//Click on equity code
+					ele = driver.findElement(By.xpath("//*[@id='react-autowhatever-1']/ul/li[" + counter + "]"));
+					ele.click();
+					break;
+				}
 			}
-		}		
-		
+		} catch(Exception ex) {
+			System.out.println("Error in adding stock in watchlist");
+		}
 		//Click main to close quote dialog
 //		ele = driver.findElement(By.id("main"));
 //		ele.click();
