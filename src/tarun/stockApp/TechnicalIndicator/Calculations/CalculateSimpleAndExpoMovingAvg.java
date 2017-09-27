@@ -37,13 +37,14 @@ public class CalculateSimpleAndExpoMovingAvg {
 		String nseCode;
 
 		for (String stockCode : stockList) {
-			//calculate average on bulk
-			//calculateSimpleMovingAverage(stockCode);
-			//calculate average on daily basis
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
-			calculateSimpleMovingAverageDaily(nseCode);
+			//calculate average on bulk
+			calculateSimpleMovingAverage(nseCode);
+			//calculate average on daily basis
+			
+			//calculateSimpleMovingAverageDaily(nseCode);
 		}
 	}
 
@@ -53,29 +54,52 @@ public class CalculateSimpleAndExpoMovingAvg {
 		int period = 1;
 		float sumOfClosingPrices = 0;
 		float expMovingAvg = 0;
-		stockDetails = getStockDetailsFromDB(stockCode);
-		for (int counter = 0; counter < stockDetails.tradeddate.size() - 3; counter++) {
-			period = 1;
-			sumOfClosingPrices = 0;
-			System.out.println(" Stock -> " + stockCode + " Round -> " + (counter + 1));
-			for (int counter1 = counter; counter1 < stockDetails.tradeddate.size(); counter1++) {
-				sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter1);
-
-				if (period == 3 || period == 5 || period == 9 || period == 14 || period == 20 || period == 50
-						|| period == 200) {
-					simpleMovingAverage = sumOfClosingPrices / period;
-					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter1), period);
-					if (expMovingAvg == -1) {
-						expMovingAvg = simpleMovingAverage;
+		
+		ArrayList<Integer> smaPeriods;
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			stockDetails = getStockDetailsFromDB(stockCode);
+			smaPeriods = GetSMAPeriodsFromDB(stockCode);
+			for (int counter = 0; counter < stockDetails.tradeddate.size() - 3; counter++) {
+				period = 1;
+				sumOfClosingPrices = 0;
+				System.out.println(" Stock -> " + stockCode + " Round -> " + (counter + 1));
+				for (int counter1 = counter; counter1 < stockDetails.tradeddate.size(); counter1++) {
+					sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter1);
+					if(smaPeriods.contains(period)) {
+					/*if (period != 3 && period != 5 && period != 9 && period != 14 && period != 20 && period != 50
+							&& period != 200) {*/
+						simpleMovingAverage = sumOfClosingPrices / period;
+						expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter1), period);
+						if (expMovingAvg == -1) {
+							expMovingAvg = simpleMovingAverage;
+						}
+						storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter1), simpleMovingAverage,
+								period, stockDetails.closePrice.get(counter1).floatValue(), expMovingAvg);
 					}
-					storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter1), simpleMovingAverage,
-							period, stockDetails.closePrice.get(counter1).floatValue(), expMovingAvg);
+					period++;
+					if (period > 200) {
+						break;
+					}
+	
 				}
-				period++;
-				if (period > 200) {
-					break;
-				}
-
+			}
+		}catch (Exception ex) {
+			System.out.println("Error in DB action");
+			logger.error("Error in getStockDetailsFromDB  -> ", ex);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("Error in DB action");
+				logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			}
 		}
 	}
@@ -87,18 +111,22 @@ public class CalculateSimpleAndExpoMovingAvg {
 		float sumOfClosingPrices = 0;
 		float expMovingAvg = 0;
 		Date date = null;
-		stockDetails = getStockDetailsFromDBForDaily(stockCode, date);
+		ArrayList<Integer> smaPeriods;
+		
 		try {
 			if (connection != null) {
 				connection.close();
 				connection = null;
 			}
 			connection = StockUtils.connectToDB();
+			stockDetails = getStockDetailsFromDBForDaily(stockCode, date);
+			smaPeriods = GetSMAPeriodsFromDB(stockCode);
 			
 			for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
 				sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter);
-				if (period == 3 || period == 5 || period == 9 || period == 14 || period == 20 || period == 50
-						|| period == 200) {
+				if(smaPeriods.contains(period)) {
+				//if (period == 3 || period == 5 || period == 9 || period == 14 || period == 20 || period == 50
+				//		|| period == 200) {
 					simpleMovingAverage = sumOfClosingPrices / period;
 					System.out.println(" Stock -> " + stockCode + " Period -> " + (counter));
 					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), period);
@@ -135,12 +163,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 		String tradedDate;
 		Float closePrice;
 		SMAData smaDataObj = null;
-		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
-			connection = StockUtils.connectToDB();
+		try {			
 			smaDataObj = new SMAData();
 			smaDataObj.closePrice = new ArrayList<Float>();
 			smaDataObj.tradeddate = new ArrayList<String>();
@@ -178,15 +201,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 				System.out.println("getStockDetailsFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDB Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
-			}
 		}
 	}
 
@@ -200,11 +214,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 		
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
-			connection = StockUtils.connectToDB();
+			
 			smaDataObj = new SMAData();
 			smaDataObj.closePrice = new ArrayList<Float>();
 			smaDataObj.tradeddate = new ArrayList<String>();
@@ -248,15 +258,6 @@ public class CalculateSimpleAndExpoMovingAvg {
 			} catch (Exception ex) {
 				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
-			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForDaily Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
 			}
 		}
 	}
@@ -346,5 +347,53 @@ public class CalculateSimpleAndExpoMovingAvg {
 				logger.error("Error in closing statement getExpMovingAverageFromDB  -> ", ex);
 			}
 		}
+	}
+	
+	private ArrayList<Integer> GetSMAPeriodsFromDB(String stockCode) {
+		ArrayList<Integer> prefPeriod = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String[] prefPeriodsInDB;
+
+		try {
+			prefPeriod = new ArrayList<Integer>();
+			
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery("SELECT DAILYSMAPERIOD FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
+			while (resultSet.next()) {
+				prefPeriodsInDB = resultSet.getString(1).split(",");
+				for (int counter = 0; counter < prefPeriodsInDB.length; counter++) {
+					if (!prefPeriodsInDB[counter].equals("3") && !prefPeriodsInDB[counter].equals("5") && !prefPeriodsInDB[counter].equals("9") && !prefPeriodsInDB[counter].equals("14") && !prefPeriodsInDB[counter].equals("20") && !prefPeriodsInDB[counter].equals("50")
+							&& !prefPeriodsInDB[counter].equals("200")) {
+						prefPeriod.add(new Integer(prefPeriodsInDB[counter]));
+					}
+				}
+				// System.out.println("StockNme - " + stockNSECode);
+			}
+			resultSet.close();
+		} catch (Exception ex) {
+			System.out.println("Error in getting SMA period from DB" + ex);
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetSMAPeriodsFromDB Error in closing resultset "+ex);
+				logger.error("Error in closing resultset GetSMAPeriodsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("GetSMAPeriodsFromDB Error in closing statement "+ex);
+				logger.error("Error in closing statement GetSMAPeriodsFromDB  -> ", ex);
+			}
+		}
+		return prefPeriod;
 	}
 }
