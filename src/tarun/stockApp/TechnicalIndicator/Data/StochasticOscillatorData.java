@@ -7,4 +7,5 @@ public class StochasticOscillatorData {
 	public ArrayList<Float> closePrice;
 	public ArrayList<Float> highPrice;
 	public ArrayList<Float> lowPrice;
+	public ArrayList<Float> scholsticOscillator;
 }
