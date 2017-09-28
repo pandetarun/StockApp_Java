@@ -59,9 +59,9 @@ public class GenerateIndicationfromMovingAverage {
 					}
 				}
 			}
-			/*if (stockcounter > 200) {
-				break;
-			}*/
+//			if (stockcounter > 20) {
+//				break;
+//			}
 		}
 		logger.debug("CalculateAndSendIndicationfromSMA calculation completed");
 		// Collections.sort(SMAIndicatorDetailsList);
