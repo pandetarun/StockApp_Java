@@ -41,10 +41,10 @@ public class CalculateSimpleAndExpoMovingAvg {
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
 			//calculate average on bulk
-			calculateSimpleMovingAverage(nseCode);
+			//calculateSimpleMovingAverage(nseCode);
 			//calculate average on daily basis
 			
-			//calculateSimpleMovingAverageDaily(nseCode);
+			calculateSimpleMovingAverageDaily(nseCode);
 		}
 	}
 
