@@ -12,6 +12,7 @@ import tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetails;
 public class GenerateCombinedIndication {
 	Connection connection = null;
 	public static int daysToCheck = 5;
+	public static String YAHOO_URL = "https://in.finance.yahoo.com/chart/";
 	
 	SMAIndicatorDetails objSMAIndicatorDetails;
 	String stockName;
@@ -129,7 +130,7 @@ public class GenerateCombinedIndication {
 		for (int counter = 0; counter <(objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()); counter++) {
 			mailBody.append("<tr><td>" + (counter+1) + "</td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).tradeddate + "</td>");
-			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockCode + "</td>");
+			mailBody.append("<td><a href='"+ YAHOO_URL + objFinalSelectedStockList.get(counter).stockCode + ".NS'>" + objFinalSelectedStockList.get(counter).stockCode + "</a></td>");
 			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockPrice + "</td>");
 			if(objFinalSelectedStockList.get(counter).SMNSMcrossover) {
 				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).SMNSMcrossover + "</td>");
@@ -184,7 +185,7 @@ public class GenerateCombinedIndication {
 		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MMM");
 		CreateWatchListYahoo objCreateWatchListYahoo = new CreateWatchListYahoo();
 		
-		for (int counter = (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()); counter > 0; counter--) {
+		for (int counter = (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()-1); counter > 0; counter--) {
 			if(counter == objFinalSelectedStockList.size()-1 || counter == 20) {
 				if(!belowHunderd){
 					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " All", belowHunderd);
