@@ -99,8 +99,8 @@ public class CalculateAverageTrueRange {
 			
 			}
 		} catch (Exception ex) {
-			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
-			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			System.out.println("calculateAverageTrueRangeForStockInBulk Error in DB action "+ex);
+			logger.error("Error in calculateAverageTrueRangeForStockInBulk  -> ", ex);
 		} finally {
 			try {
 				if (connection != null) {
@@ -108,8 +108,8 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("calculateAverageTrueRangeForStockInBulk Error in DB action ");
+				logger.error("Error in calculateAverageTrueRangeForStockInBulk  -> ", ex);
 			}
 		}
 	}
@@ -158,7 +158,7 @@ public class CalculateAverageTrueRange {
 				}
 			} catch (Exception ex) {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
-				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+				logger.error("Error in closing resultset getStockDetailsFromDBForBulk  -> ", ex);
 			}
 			try {
 				if(statement != null) {
@@ -167,7 +167,7 @@ public class CalculateAverageTrueRange {
 				}
 			} catch (Exception ex) {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
-				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+				logger.error("Error in closing statement getStockDetailsFromDBForBulk  -> ", ex);
 			}
 			try {
 				if (connection != null) {
@@ -176,7 +176,7 @@ public class CalculateAverageTrueRange {
 				} 
 			} catch (Exception ex) {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
+				logger.error("Error in closing connection getStockDetailsFromDBForBulk  -> ", ex);
 			}
 		}
 	}
@@ -204,14 +204,14 @@ public class CalculateAverageTrueRange {
 			currentLowAndPreviousCloseDifference =  Math.abs(stockDetails.lowPrice.get(0) - stockDetails.closePrice.get(1));
 			trueRange =  Math.max(currentLowAndPreviousCloseDifference, Math.max(currentHighLowDifference, currentHighAndPreviousCloseDifference));
 			averageTrueRange = ((previousDayATR * (ATR_PERIOD-1)) + trueRange) / ATR_PERIOD;
-			System.out.println("Inserting oschillator value in DB Date-> "+ stockDetails.tradeddate.get(0) + " ATR -> "+ averageTrueRange );
+			System.out.println("Inserting ATR value in DB Date-> "+ stockDetails.tradeddate.get(0) + " ATR -> "+ averageTrueRange );
 					
 			//Call method to store stochastic oscillator with period in DB
-			System.out.println("Inserting oschillator value in DB");
+			System.out.println("Inserting ATR value in DB");
 			storeATRinDB(stockCode, stockDetails.tradeddate.get(0), ATR_PERIOD, averageTrueRange);
 		} catch (Exception ex) {
-			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
-			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			System.out.println("calculateAverageTrueRangeForStockDaily Error in DB action "+ex);
+			logger.error("Error in calculateAverageTrueRangeForStockDaily  -> ", ex);
 		} finally {
 			try {
 				if (connection != null) {
@@ -219,8 +219,8 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("calculateAverageTrueRangeForStockDaily Error in DB action ");
+				logger.error("Error in calculateAverageTrueRangeForStockDaily  -> ", ex);
 			}
 		}
 	}
@@ -262,8 +262,8 @@ public class CalculateAverageTrueRange {
 			}
 			return soDataObj;
 		} catch (Exception ex) {
-			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
-			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
+			System.out.println("getStockDetailsFromDBDaily -> Error in DB action"+ex);
+			logger.error("Error in getStockDetailsFromDBDaily  -> ", ex);
 			return null;
 		} finally {
 			try {
@@ -272,8 +272,8 @@ public class CalculateAverageTrueRange {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
-				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+				System.out.println("getStockDetailsFromDBDaily Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDBDaily  -> ", ex);
 			}
 			try {
 				if(statement != null) {
@@ -281,8 +281,8 @@ public class CalculateAverageTrueRange {
 					statement = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
-				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+				System.out.println("getStockDetailsFromDBDaily Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDBDaily  -> ", ex);
 			}
 		}
 	}
@@ -297,16 +297,16 @@ public class CalculateAverageTrueRange {
 		
 		try {		
 			statement = connection.createStatement();
-			tmpSQL = "SELECT ATR FROM DAILY_AVERAGE_TRUE_RANGE where stockname='"
-					+ stockCode + "'  and tradeddate='" + dateFormat.format(targetDate) +"';";
+			tmpSQL = "SELECT First 1 ATR FROM DAILY_AVERAGE_TRUE_RANGE where stockname='"
+					+ stockCode + "'  and tradeddate<='" + dateFormat.format(targetDate) +"' order by tradeddate desc;";
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				previousDayATR = Float.parseFloat(resultSet.getString(1));
 			}
 			return previousDayATR;
 		} catch (Exception ex) {
-			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
-			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
+			System.out.println("getATR -> Error in DB action"+ex);
+			logger.error("Error in getATR  -> ", ex);
 			return 0;
 		} finally {
 			try {
@@ -315,8 +315,8 @@ public class CalculateAverageTrueRange {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
-				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+				System.out.println("getATR Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getATR  -> ", ex);
 			}
 			try {
 				if(statement != null) {
@@ -324,8 +324,8 @@ public class CalculateAverageTrueRange {
 					statement = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
-				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+				System.out.println("getATR Error in closing statement "+ex);
+				logger.error("Error in closing statement getATR  -> ", ex);
 			}
 		}
 	}
@@ -339,9 +339,9 @@ public class CalculateAverageTrueRange {
 					+ stockName + "','" + tradedDate + "'," + period + "," + atr + ");";
 			statement.executeUpdate(tmpsql);
 		} catch (Exception ex) {
-			System.out.println("storeStochasticOscillatorinDB for quote -> " + stockName + " and Date - > " + tradedDate
+			System.out.println("storeATRinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
-			logger.error("Error in storeStochasticOscillatorinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
+			logger.error("Error in storeATRinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period, ex);
 		} finally {
 			try {
@@ -385,8 +385,8 @@ public class CalculateAverageTrueRange {
 			System.out.println("chandelierExitLong-> "+ chandelierExitLong );					
 			return chandelierExitLong;
 		} catch (Exception ex) {
-			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
-			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			System.out.println("getChandelierExitLong Error in DB action "+ex);
+			logger.error("Error in getChandelierExitLong  -> ", ex);
 			return 0;
 		} finally {
 			try {
@@ -395,8 +395,8 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("getChandelierExitLong Error in DB action ");
+				logger.error("Error in getChandelierExitLong  -> ", ex);
 			}
 		}
 	}
@@ -425,11 +425,11 @@ public class CalculateAverageTrueRange {
 			}			
 			chandelierExitShort = lowestLow + (dayATR * CHANDLIER_MULTIPLIER);
 			
-			System.out.println("chandelierExitLong-> "+ chandelierExitShort );					
+			System.out.println("chandelierExitShort-> "+ chandelierExitShort );					
 			return chandelierExitShort;
 		} catch (Exception ex) {
-			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
-			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			System.out.println("getChandelierExitShort Error in DB action "+ex);
+			logger.error("Error in getChandelierExitShort  -> ", ex);
 			return 0;
 		} finally {
 			try {
@@ -438,8 +438,8 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("getChandelierExitShort Error in DB action ");
+				logger.error("Error in getChandelierExitShort  -> ", ex);
 			}
 		}
 	}
