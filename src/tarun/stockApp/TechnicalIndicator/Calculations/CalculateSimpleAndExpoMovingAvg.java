@@ -363,10 +363,10 @@ public class CalculateSimpleAndExpoMovingAvg {
 			while (resultSet.next()) {
 				prefPeriodsInDB = resultSet.getString(1).split(",");
 				for (int counter = 0; counter < prefPeriodsInDB.length; counter++) {
-					if (!prefPeriodsInDB[counter].equals("3") && !prefPeriodsInDB[counter].equals("5") && !prefPeriodsInDB[counter].equals("9") && !prefPeriodsInDB[counter].equals("14") && !prefPeriodsInDB[counter].equals("20") && !prefPeriodsInDB[counter].equals("50")
-							&& !prefPeriodsInDB[counter].equals("200")) {
+					/*if (!prefPeriodsInDB[counter].equals("3") && !prefPeriodsInDB[counter].equals("5") && !prefPeriodsInDB[counter].equals("9") && !prefPeriodsInDB[counter].equals("14") && !prefPeriodsInDB[counter].equals("20") && !prefPeriodsInDB[counter].equals("50")
+							&& !prefPeriodsInDB[counter].equals("200")) {*/
 						prefPeriod.add(new Integer(prefPeriodsInDB[counter]));
-					}
+					//}
 				}
 				// System.out.println("StockNme - " + stockNSECode);
 			}
